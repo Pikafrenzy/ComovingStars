@@ -18,15 +18,17 @@ import gala.dynamics as gd
 import gala.potential as gp
 import gala.units as gu
 
+#initial variables
 mw = gp.MilkyWayPotential()
 T = 500*u.Myr
 pos0 = [8.0,0.0,2.0]*u.kpc
 posDiff = [0.0,0.0,0.001]*u.kpc
-pos1= pos0 + posDiff
+pos1 = pos0 + posDiff
 vel0 = [20.0,200.0,30.0]*u.km/u.s
 velDiff = [0.0,0.0,0.0]*u.km/u.s
 vel1 = vel0 + velDiff
 
+#toggle for whether graphs are saved automatically to computer
 saveGraphs = False
 
 w0 = gd.PhaseSpacePosition(pos=pos0, vel=vel0)
@@ -36,15 +38,22 @@ orbit1 = mw.integrate_orbit(w1, dt = 1*u.Myr, t1=0, t2=T)
 
 plt.rcParams.update({'font.size': 10})
 
+def trunc3dp(number):
+    return np.trunc(number*1e3)/1e3
+    
+def makeLabel(vec3):
+    label = "["+str(trunc3dp(vec3[0].to_value()))+", "+str(trunc3dp(vec3[1].to_value()))+", "+str(trunc3dp(vec3[2].to_value()))+"] "+vec3[0].unit.to_string()
+    return label
+
 fig1, ax1 = plt.subplots(1,2, layout="constrained")
-ax1[0].plot(orbit0.pos.x,orbit0.pos.y,label="Position = [8.0,0.0,2.0]",linewidth = 0.3, color = 'r')
-ax1[0].plot(orbit1.pos.x,orbit1.pos.y,label="Position = [8.0,0.0,2.001]",linewidth = 0.3, color = 'b')
-ax1[0].legend(fontsize=10, bbox_to_anchor=(0.7,-0.2))
+ax1[0].plot(orbit0.pos.x,orbit0.pos.y,label="Position = "+makeLabel(pos0),linewidth = 0.3, color = 'r')
+ax1[0].plot(orbit1.pos.x,orbit1.pos.y,label="Position = "+makeLabel(pos1),linewidth = 0.3, color = 'b')
+ax1[0].legend(fontsize=10, bbox_to_anchor=(0.9,-0.2))
 ax1[0].set_aspect('equal','box')
 ax1[0].set_title("Y against X")
 
-ax1[1].plot(orbit0.pos.x,orbit0.pos.z,label="Position = [8.0,0.0,2.0]",linewidth = 0.3, color = 'r')
-ax1[1].plot(orbit1.pos.x,orbit1.pos.z,label="Position = [8.0,0.0,2.001]",linewidth = 0.3, color = 'b')
+ax1[1].plot(orbit0.pos.x,orbit0.pos.z,label="Position = "+makeLabel(pos0),linewidth = 0.3, color = 'r')
+ax1[1].plot(orbit1.pos.x,orbit1.pos.z,label="Position = "+makeLabel(pos1),linewidth = 0.3, color = 'b')
 ax1[1].axis('equal')
 ax1[1].set(ylim=(-4,4))
 ax1[1].set_title("Z against X")
