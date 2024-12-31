@@ -84,20 +84,20 @@ ax2['DiffZ'].set_xlabel("t (Myr)")
 
 ax2['DiffVX'].plot(orbit0.t,(orbit1.v_x-orbit0.v_x).to(u.km/u.s))
 ax2['DiffVX'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffVX'].set_title("Difference in v_x")
-ax2['DiffVX'].set_ylabel("v_x (km/s)")
+ax2['DiffVX'].set_title("Difference in $v_x$")
+ax2['DiffVX'].set_ylabel("$v_x$ (km/s)")
 ax2['DiffVX'].set_xlabel("t (Myr)")
 
 ax2['DiffVY'].plot(orbit0.t,(orbit1.v_y-orbit0.v_y).to(u.km/u.s))
 ax2['DiffVY'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffVY'].set_title("Difference in v_y")
-ax2['DiffVY'].set_ylabel("v_y (km/s)")
+ax2['DiffVY'].set_title("Difference in $v_y$")
+ax2['DiffVY'].set_ylabel("$v_y$ (km/s)")
 ax2['DiffVY'].set_xlabel("t (Myr)")
 
 ax2['DiffVZ'].plot(orbit0.t,(orbit1.v_z-orbit0.v_z).to(u.km/u.s))
 ax2['DiffVZ'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffVZ'].set_title("Difference in v_z")
-ax2['DiffVZ'].set_ylabel("v_z (km/s)")
+ax2['DiffVZ'].set_title("Difference in $v_z$")
+ax2['DiffVZ'].set_ylabel("$v_z$ (km/s)")
 ax2['DiffVZ'].set_xlabel("t (Myr)")
 
 magPos_orbit0 = []
