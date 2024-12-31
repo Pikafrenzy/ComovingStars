@@ -65,45 +65,52 @@ posPath = dirPath+"/Position_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
 if(saveGraphs): 
     plt.savefig(posPath)
 
+plt.rcParams.update({'font.size': 28})
+
+diff_X = orbit1.pos.x-orbit0.pos.x
+diff_Y = orbit1.pos.y-orbit0.pos.y
+diff_Z = orbit1.pos.z-orbit0.pos.z
+diff_Vx = (orbit1.v_x-orbit0.v_x).to(u.km/u.s)
+diff_Vy = (orbit1.v_y-orbit0.v_y).to(u.km/u.s)
+diff_Vz = (orbit1.v_z-orbit0.v_z).to(u.km/u.s)
+
 layout = [['DiffX','DiffY','DiffZ'],
           ['DiffVX','DiffVY','DiffVZ'],
           ['DiffPos','.','DiffVel']]
 
-plt.rcParams.update({'font.size': 28})
-
 fig2, ax2 = plt.subplot_mosaic(layout, figsize=(30, 10),layout="constrained")
 
-ax2['DiffX'].plot(orbit0.t,orbit1.pos.x-orbit0.pos.x)
+ax2['DiffX'].plot(orbit0.t,diff_X)
 ax2['DiffX'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
 ax2['DiffX'].set_title("Difference in x")
 ax2['DiffX'].set_ylabel("x (kpc)")
 ax2['DiffX'].set_xlabel("t (Myr)")
 
-ax2['DiffY'].plot(orbit0.t,orbit1.pos.y-orbit0.pos.y)
+ax2['DiffY'].plot(orbit0.t,diff_Y)
 ax2['DiffY'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
 ax2['DiffY'].set_title("Difference in y")
 ax2['DiffY'].set_ylabel("y (kpc)")
 ax2['DiffY'].set_xlabel("t (Myr)")
 
-ax2['DiffZ'].plot(orbit0.t,orbit1.pos.z-orbit0.pos.z)
+ax2['DiffZ'].plot(orbit0.t,diff_Z)
 ax2['DiffZ'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
 ax2['DiffZ'].set_title("Difference in z")
 ax2['DiffZ'].set_ylabel("z (kpc)")
 ax2['DiffZ'].set_xlabel("t (Myr)")
 
-ax2['DiffVX'].plot(orbit0.t,(orbit1.v_x-orbit0.v_x).to(u.km/u.s))
+ax2['DiffVX'].plot(orbit0.t,diff_Vx)
 ax2['DiffVX'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
 ax2['DiffVX'].set_title("Difference in $v_x$")
 ax2['DiffVX'].set_ylabel("$v_x$ (km/s)")
 ax2['DiffVX'].set_xlabel("t (Myr)")
 
-ax2['DiffVY'].plot(orbit0.t,(orbit1.v_y-orbit0.v_y).to(u.km/u.s))
+ax2['DiffVY'].plot(orbit0.t,diff_Vy)
 ax2['DiffVY'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
 ax2['DiffVY'].set_title("Difference in $v_y$")
 ax2['DiffVY'].set_ylabel("$v_y$ (km/s)")
 ax2['DiffVY'].set_xlabel("t (Myr)")
 
-ax2['DiffVZ'].plot(orbit0.t,(orbit1.v_z-orbit0.v_z).to(u.km/u.s))
+ax2['DiffVZ'].plot(orbit0.t,diff_Vz)
 ax2['DiffVZ'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
 ax2['DiffVZ'].set_title("Difference in $v_z$")
 ax2['DiffVZ'].set_ylabel("$v_z$ (km/s)")
@@ -152,7 +159,6 @@ ax2['DiffVel'].set_xlabel("t (Myr)")
 diffPath = dirPath+"/VariableDifference_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
 if(saveGraphs): 
    plt.savefig(diffPath)
-
 
 
 
