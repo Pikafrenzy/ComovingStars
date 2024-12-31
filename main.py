@@ -74,47 +74,79 @@ diff_Vx = (orbit1.v_x-orbit0.v_x).to(u.km/u.s)
 diff_Vy = (orbit1.v_y-orbit0.v_y).to(u.km/u.s)
 diff_Vz = (orbit1.v_z-orbit0.v_z).to(u.km/u.s)
 
-layout = [['DiffX','DiffY','DiffZ'],
-          ['DiffVX','DiffVY','DiffVZ'],
-          ['DiffPos','.','DiffVel']]
+fig2 = plt.figure(figsize = (30,10), layout = "constrained")
 
-fig2, ax2 = plt.subplot_mosaic(layout, figsize=(30, 10),layout="constrained")
+#position plots
+axDiffX = plt.subplot(331)
+axDiffX.plot(orbit0.t,diff_X)
+axDiffX.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+axDiffX.set_title("Difference in x")
+axDiffX.set_ylabel("Position (kpc)")
+axDiffX.tick_params('x',labelbottom = False)
+axDiffX.tick_params('both',length = 12)
 
-ax2['DiffX'].plot(orbit0.t,diff_X)
-ax2['DiffX'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffX'].set_title("Difference in x")
-ax2['DiffX'].set_ylabel("x (kpc)")
-ax2['DiffX'].set_xlabel("t (Myr)")
+def checkSharing(x1, x2, margin):
+    diff_min = x2.min()-x1.min()
+    diff_max = x2.max()-x1.max()
+    share = diff_min.to_value() <= margin and diff_max.to_value() <= margin
+    return share
 
-ax2['DiffY'].plot(orbit0.t,diff_Y)
-ax2['DiffY'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffY'].set_title("Difference in y")
-ax2['DiffY'].set_ylabel("y (kpc)")
-ax2['DiffY'].set_xlabel("t (Myr)")
+if checkSharing(diff_X,diff_Y,0.01):
+    axDiffY = plt.subplot(332,sharey=axDiffX)
+    axDiffY.tick_params('y',labelleft = False)
+else:
+    axDiffY = plt.subplot(332)
+    axDiffY.set_ylabel("Position (kpc)")
+axDiffY.plot(orbit0.t,diff_Y)
+axDiffY.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+axDiffY.set_title("Difference in y")
+axDiffY.tick_params('x',labelbottom = False)
+axDiffY.tick_params('both',length = 12)
 
-ax2['DiffZ'].plot(orbit0.t,diff_Z)
-ax2['DiffZ'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffZ'].set_title("Difference in z")
-ax2['DiffZ'].set_ylabel("z (kpc)")
-ax2['DiffZ'].set_xlabel("t (Myr)")
+if checkSharing(diff_Y,diff_Z, 0.01):
+    axDiffZ = plt.subplot(333,sharey=axDiffY)
+    axDiffZ.tick_params('y',labelleft = False)
+else:
+    axDiffZ = plt.subplot(333)
+    axDiffZ.set_ylabel("Position (kpc)")
+axDiffZ.plot(orbit0.t,diff_Z)
+axDiffZ.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+axDiffZ.set_title("Difference in z")
+axDiffZ.tick_params('x',labelbottom = False)
+axDiffZ.tick_params('both',length = 12)
 
-ax2['DiffVX'].plot(orbit0.t,diff_Vx)
-ax2['DiffVX'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffVX'].set_title("Difference in $v_x$")
-ax2['DiffVX'].set_ylabel("$v_x$ (km/s)")
-ax2['DiffVX'].set_xlabel("t (Myr)")
+#velocity plots
+axDiffVx = plt.subplot(334,sharex=axDiffX)
+axDiffVx.plot(orbit0.t,diff_Vx)
+axDiffVx.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+axDiffVx.set_title("Difference in $v_x$")
+axDiffVx.set_ylabel("Velocity (km/s)")
+axDiffVx.tick_params('x',labelbottom = False)
+axDiffVx.tick_params('both',length = 12)
 
-ax2['DiffVY'].plot(orbit0.t,diff_Vy)
-ax2['DiffVY'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffVY'].set_title("Difference in $v_y$")
-ax2['DiffVY'].set_ylabel("$v_y$ (km/s)")
-ax2['DiffVY'].set_xlabel("t (Myr)")
+if checkSharing(diff_Vx,diff_Vy, 0.1):
+    axDiffVy = plt.subplot(335,sharex = axDiffY, sharey=axDiffVx)
+    axDiffVy.tick_params('y',labelleft = False)
+else:
+    axDiffVy = plt.subplot(335)
+    axDiffVy.set_ylabel("Velocity (km/s)")
+axDiffVy.tick_params('both',length = 12)
+axDiffVy.plot(orbit0.t,diff_Vy)
+axDiffVy.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+axDiffVy.set_title("Difference in $v_y$")
+axDiffVy.set_xlabel("t (Myr)")
 
-ax2['DiffVZ'].plot(orbit0.t,diff_Vz)
-ax2['DiffVZ'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffVZ'].set_title("Difference in $v_z$")
-ax2['DiffVZ'].set_ylabel("$v_z$ (km/s)")
-ax2['DiffVZ'].set_xlabel("t (Myr)")
+if checkSharing(diff_Vy,diff_Vz, 0.1):
+    axDiffVz = plt.subplot(336,sharex = axDiffZ, sharey=axDiffVy)
+    axDiffVz.tick_params('y',labelleft = False)
+else:
+    axDiffVz = plt.subplot(336)
+    axDiffVz.set_ylabel("Velocity (km/s)")
+axDiffVz.plot(orbit0.t,diff_Vz)
+axDiffVz.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+axDiffVz.set_title("Difference in $v_z$")
+axDiffVz.tick_params('x',labelbottom = False)
+axDiffVz.tick_params('both',length = 12)
 
 magPos_orbit0 = []
 for (i,pos) in enumerate(orbit0.pos.x):
@@ -130,11 +162,13 @@ magPosDifference = []
 for (k,pos) in enumerate(magPos_orbit0):
     magPosDifference.append(magPos_orbit1[k].value-magPos_orbit0[k].value)
 
-ax2['DiffPos'].plot(orbit0.t,magPosDifference)
-ax2['DiffPos'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffPos'].set_title("Difference in magnitude of position")
-ax2['DiffPos'].set_ylabel(r"$|\vec x|$ (kpc)")
-ax2['DiffPos'].set_xlabel("t (Myr)")
+axDiffMagPos = plt.subplot(337,sharex = axDiffVx)
+axDiffMagPos.plot(orbit0.t,magPosDifference)
+axDiffMagPos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+axDiffMagPos.set_title("Difference in magnitude of position")
+axDiffMagPos.set_ylabel(r"$|\vec x|$ (kpc)")
+axDiffMagPos.set_xlabel("t (Myr)")
+axDiffMagPos.tick_params('both',length = 12)
 
 magVel_orbit0 = []
 for (i,vel) in enumerate(orbit0.v_x):
@@ -149,12 +183,14 @@ for (j,vel) in enumerate(orbit1.v_x):
 magVelDifference = []
 for (k,pos) in enumerate(magVel_orbit0):
     magVelDifference.append(magVel_orbit1[k].to(u.km/u.s).value-magVel_orbit0[k].to(u.km/u.s).value)
-
-ax2['DiffVel'].plot(orbit0.t,magVelDifference)
-ax2['DiffVel'].plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-ax2['DiffVel'].set_title("Difference in magnitude of velocity")
-ax2['DiffVel'].set_ylabel(r"$|\vec v|$ (km/s)")
-ax2['DiffVel'].set_xlabel("t (Myr)")
+    
+axDiffMagVel = plt.subplot(339,sharex = axDiffVz)
+axDiffMagVel.plot(orbit0.t,magVelDifference)
+axDiffMagVel.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+axDiffMagVel.set_title("Difference in magnitude of velocity")
+axDiffMagVel.set_ylabel(r"$|\vec v|$ (km/s)")
+axDiffMagVel.set_xlabel("t (Myr)")
+axDiffMagVel.tick_params('both',length = 12)
 
 diffPath = dirPath+"/VariableDifference_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
 if(saveGraphs): 
