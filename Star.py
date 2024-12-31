@@ -6,10 +6,21 @@ Created on Tue Dec 31 15:08:20 2024
 @author: ambroselo
 """
 
+from collections import namedtuple
+
 class Star:
-    def __init__(self, posx,posy,posz,vx,vy,vz):
-        self.Position = [posx,posy,posz]
-        self.Velocity = [vx,vy,vz]
+    def __init__(self, posx,posy,posz,v_x,v_y,v_z):
+        self.Position = namedtuple('Position',['x','y','z'])
+        
+        self.Position.x = posx
+        self.Position.y = posy
+        self.Position.z = posz
+        
+        self.Velocity = namedtuple('Position',['v_x','v_y','v_z'])
+        
+        self.Velocity.v_x = v_x
+        self.Velocity.v_y = v_y
+        self.Velocity.v_z = v_z
         
     def __str__(self):
         output = "Position: ["
