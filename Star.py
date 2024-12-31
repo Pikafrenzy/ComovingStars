@@ -31,3 +31,16 @@ class Star:
             output += str(j) + ", "
         output += str(self.Velocity[-1]) +"]"
         return output
+    
+    def get_x(self):
+        return self.Position.x
+    def get_y(self):
+        return self.Position.y
+    def get_z(self):
+        return self.Position.z
+    def get_Vx(self):
+        return self.Velocity.v_x
+    def get_Vy(self):
+        return self.Velocity.v_y
+    def get_Vz(self):
+        return self.Velocity.v_z
