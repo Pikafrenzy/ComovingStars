@@ -29,7 +29,7 @@ velDiff = [0.0,0.0,0.0]*u.km/u.s
 vel1 = vel0 + velDiff
 
 #toggle for whether graphs are saved automatically to computer
-saveGraphs = False
+saveGraphs = True
 
 w0 = gd.PhaseSpacePosition(pos=pos0, vel=vel0)
 w1 = gd.PhaseSpacePosition(pos=pos1, vel=vel1)
@@ -148,25 +148,7 @@ axDiffVz.set_title("Difference in $v_z$")
 axDiffVz.tick_params('x',labelbottom = False)
 axDiffVz.tick_params('both',length = 12)
 
-
-magPos_orbitx = []
-for (i,posx) in enumerate(orbit0.pos.x):
-    magPos_i = orbit1.pos.x[i]-orbit0.pos.x[i]
-    magPos_orbitx.append(magPos_i)
-
-magPos_orbity = []
-for (j,posy) in enumerate(orbit0.pos.y):
-    magPos_j = orbit1.pos.y[j]-orbit0.pos.y[j]
-    magPos_orbity.append(magPos_j)
-
-magPos_orbitz = []
-for (k,posz) in enumerate(orbit0.pos.z):
-    magPos_k = orbit1.pos.z[k]-orbit0.pos.z[k]
-    magPos_orbitz.append(magPos_k)
-    
-magPosDifference = []
-for (l,pos) in enumerate(magPos_orbitx):
-    magPosDifference.append(np.sqrt(magPos_orbitx[l].value**2+magPos_orbity[l].value**2+magPos_orbitz[l].value**2))
+magPosDifference = np.sqrt(diff_X**2+diff_Y**2+diff_Z**2)
 
 axDiffMagPos = plt.subplot(337,sharex = axDiffVx)
 axDiffMagPos.plot(orbit0.t,magPosDifference)
@@ -176,25 +158,8 @@ axDiffMagPos.set_ylabel(r"$|\vec x|$ (kpc)")
 axDiffMagPos.set_xlabel("t (Myr)")
 axDiffMagPos.tick_params('both',length = 12)
 
-magVel_orbitx = []
-for (i,velx) in enumerate(orbit0.v_x):
-    magVel_i = (orbit1.v_x[i]-orbit0.v_x[i]).to(u.km/u.s)
-    magVel_orbitx.append(magVel_i)
+magVelDifference = np.sqrt(diff_Vx**2+diff_Vy**2+diff_Vz**2)
 
-magVel_orbity = []
-for (j,vely) in enumerate(orbit0.v_y):
-    magVel_j = (orbit1.v_y[j]-orbit0.v_y[j]).to(u.km/u.s)
-    magVel_orbity.append(magVel_j)
-    
-magVel_orbitz = []
-for (k,velz) in enumerate(orbit0.v_z):
-    magVel_k = (orbit1.v_z[k]-orbit0.v_z[k]).to(u.km/u.s)
-    magVel_orbitz.append(magVel_k)
-
-magVelDifference = []
-for (l,vel) in enumerate(magVel_orbitx):
-    magVelDifference.append(np.sqrt(magVel_orbitx[l].value**2+magVel_orbity[l].value**2+magVel_orbitz[l].value**2))
-    
 axDiffMagVel = plt.subplot(339,sharex = axDiffVz)
 axDiffMagVel.plot(orbit0.t,magVelDifference)
 axDiffMagVel.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
