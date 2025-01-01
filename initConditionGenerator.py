@@ -25,7 +25,7 @@ rng = np.random.default_rng(137)
 stars = []
 
 #toggle for whether graphs are saved automatically to computer
-saveGraphs = True
+saveGraphs = False
 
 for i in range(1000):
     
@@ -36,9 +36,9 @@ for i in range(1000):
     posy = posR*np.sin(posTheta)*u.kpc
     posz = 0.0*u.kpc
     
-    vx = 0.0*u.km/u.s
+    vx = rng.normal(0.0,30)*u.km/u.s
     vy = rng.normal(220,30)*u.km/u.s
-    vz = 0.0*u.km/u.s
+    vz = rng.normal(0.0,30)*u.km/u.s
     
     stars.append(Star(posx,posy,posz,vx,vy,vz))
 
@@ -64,24 +64,24 @@ axXY = plt.subplot(221)
 axXY.scatter(starsX,starsY)
 axXY.set_title("Y against X")
 axXY.set_ylabel("y (kpc)")
-axXY.set_xlabel("x (kpc)")
+axXY.tick_params('x',labelbottom = False)
 axXY.tick_params('both',length = 30)
 
-axXZ = plt.subplot(222)
+axXZ = plt.subplot(223,sharex=axXY)
 axXZ.scatter(starsX,starsZ)
 axXZ.set_title("Z against X")
 axXZ.set_ylabel("z (kpc)")
 axXZ.set_xlabel("x (kpc)")
 axXZ.tick_params('both',length = 30)
 
-axVelXY = plt.subplot(223)
+axVelXY = plt.subplot(222)
 axVelXY.scatter(starsVx,starsVy)
 axVelXY.set_title("$v_y$ against $v_x$")
 axVelXY.set_ylabel("$v_y$ (km/s)")
-axVelXY.set_xlabel("$v_x$ (km/s)")
+axVelXY.tick_params('x',labelbottom = False)
 axVelXY.tick_params('both',length = 30)
 
-axVelXZ = plt.subplot(224)
+axVelXZ = plt.subplot(224,sharex=axVelXY)
 axVelXZ.scatter(starsVx,starsVz)
 axVelXZ.set_title("$v_z$ against $v_x$")
 axVelXZ.set_ylabel("$v_z$ (km/s)")
