@@ -29,7 +29,7 @@ velDiff = [0.0,0.0,0.0]*u.km/u.s
 vel1 = vel0 + velDiff
 
 #toggle for whether graphs are saved automatically to computer
-saveGraphs = True
+saveGraphs = False
 
 w0 = gd.PhaseSpacePosition(pos=pos0, vel=vel0)
 w1 = gd.PhaseSpacePosition(pos=pos1, vel=vel1)
