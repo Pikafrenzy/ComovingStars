@@ -148,46 +148,57 @@ axDiffVz.set_title("Difference in $v_z$")
 axDiffVz.tick_params('x',labelbottom = False)
 axDiffVz.tick_params('both',length = 12)
 
-magPos_orbit0 = []
-for (i,pos) in enumerate(orbit0.pos.x):
-    magPos_i = np.sqrt(orbit0.pos.x[i]**2+orbit0.pos.y[i]**2+orbit0.pos.z[i]**2)
-    magPos_orbit0.append(magPos_i)
 
-magPos_orbit1 = []
-for (j,pos) in enumerate(orbit1.pos.x):
-    magPos_j = np.sqrt(orbit1.pos.x[j]**2+orbit1.pos.y[j]**2+orbit1.pos.z[j]**2)
-    magPos_orbit1.append(magPos_j)
+magPos_orbitx = []
+for (i,posx) in enumerate(orbit0.pos.x):
+    magPos_i = orbit1.pos.x[i]-orbit0.pos.x[i]
+    magPos_orbitx.append(magPos_i)
 
+magPos_orbity = []
+for (j,posy) in enumerate(orbit0.pos.y):
+    magPos_j = orbit1.pos.y[j]-orbit0.pos.y[j]
+    magPos_orbity.append(magPos_j)
+
+magPos_orbitz = []
+for (k,posz) in enumerate(orbit0.pos.z):
+    magPos_k = orbit1.pos.z[k]-orbit0.pos.z[k]
+    magPos_orbitz.append(magPos_k)
+    
 magPosDifference = []
-for (k,pos) in enumerate(magPos_orbit0):
-    magPosDifference.append(magPos_orbit1[k].value-magPos_orbit0[k].value)
+for (l,pos) in enumerate(magPos_orbitx):
+    magPosDifference.append(np.sqrt(magPos_orbitx[l].value**2+magPos_orbity[l].value**2+magPos_orbitz[l].value**2))
 
 axDiffMagPos = plt.subplot(337,sharex = axDiffVx)
 axDiffMagPos.plot(orbit0.t,magPosDifference)
 axDiffMagPos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-axDiffMagPos.set_title("Difference in magnitude of position")
+axDiffMagPos.set_title("Magnitude of the difference in position")
 axDiffMagPos.set_ylabel(r"$|\vec x|$ (kpc)")
 axDiffMagPos.set_xlabel("t (Myr)")
 axDiffMagPos.tick_params('both',length = 12)
 
-magVel_orbit0 = []
-for (i,vel) in enumerate(orbit0.v_x):
-    magVel_i = np.sqrt(orbit0.v_x[i]**2+orbit0.v_y[i]**2+orbit0.v_z[i]**2)
-    magVel_orbit0.append(magVel_i)
+magVel_orbitx = []
+for (i,velx) in enumerate(orbit0.v_x):
+    magVel_i = (orbit1.v_x[i]-orbit0.v_x[i]).to(u.km/u.s)
+    magVel_orbitx.append(magVel_i)
 
-magVel_orbit1 = []
-for (j,vel) in enumerate(orbit1.v_x):
-    magVel_j = np.sqrt(orbit1.v_x[j]**2+orbit1.v_y[j]**2+orbit1.v_z[j]**2)
-    magVel_orbit1.append(magVel_j)
+magVel_orbity = []
+for (j,vely) in enumerate(orbit0.v_y):
+    magVel_j = (orbit1.v_y[j]-orbit0.v_y[j]).to(u.km/u.s)
+    magVel_orbity.append(magVel_j)
+    
+magVel_orbitz = []
+for (k,velz) in enumerate(orbit0.v_z):
+    magVel_k = (orbit1.v_z[k]-orbit0.v_z[k]).to(u.km/u.s)
+    magVel_orbitz.append(magVel_k)
 
 magVelDifference = []
-for (k,pos) in enumerate(magVel_orbit0):
-    magVelDifference.append(magVel_orbit1[k].to(u.km/u.s).value-magVel_orbit0[k].to(u.km/u.s).value)
+for (l,vel) in enumerate(magVel_orbitx):
+    magVelDifference.append(np.sqrt(magVel_orbitx[l].value**2+magVel_orbity[l].value**2+magVel_orbitz[l].value**2))
     
 axDiffMagVel = plt.subplot(339,sharex = axDiffVz)
 axDiffMagVel.plot(orbit0.t,magVelDifference)
 axDiffMagVel.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
-axDiffMagVel.set_title("Difference in magnitude of velocity")
+axDiffMagVel.set_title("DMagnitude of the difference in velocity")
 axDiffMagVel.set_ylabel(r"$|\vec v|$ (km/s)")
 axDiffMagVel.set_xlabel("t (Myr)")
 axDiffMagVel.tick_params('both',length = 12)
