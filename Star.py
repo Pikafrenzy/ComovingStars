@@ -7,20 +7,21 @@ Created on Tue Dec 31 15:08:20 2024
 """
 
 from collections import namedtuple
+import astropy.units as u
 
 class Star:
     def __init__(self, posx,posy,posz,v_x,v_y,v_z):
         self.Position = namedtuple('Position',['x','y','z'])
         
-        self.Position.x = posx
-        self.Position.y = posy
-        self.Position.z = posz
+        self.Position.x = posx*u.kpc
+        self.Position.y = posy*u.kpc
+        self.Position.z = posz*u.kpc
         
-        self.Velocity = namedtuple('Position',['v_x','v_y','v_z'])
+        self.Velocity = namedtuple('Velocity',['v_x','v_y','v_z'])
         
-        self.Velocity.v_x = v_x
-        self.Velocity.v_y = v_y
-        self.Velocity.v_z = v_z
+        self.Velocity.v_x = v_x*u.km/u.s
+        self.Velocity.v_y = v_y*u.km/u.s
+        self.Velocity.v_z = v_z*u.km/u.s
         
     def __str__(self):
         output = "Position: ["
