@@ -168,15 +168,21 @@ axDiffMagVel.set_ylabel(r"$|\vec v|$ (km/s)")
 axDiffMagVel.set_xlabel("t (Myr)")
 axDiffMagVel.tick_params('both',length = 12)
 
+mean_Vx = 0.5*(orbit1.v_x+orbit0.v_x).to(u.km/u.s)
+mean_Vy = 0.5*(orbit1.v_y+orbit0.v_y).to(u.km/u.s)
+mean_Vz = 0.5*(orbit1.v_z+orbit0.v_z).to(u.km/u.s)
+
+magVelMean = np.sqrt(mean_Vx**2+mean_Vy**2+mean_Vz**2)
+
 dirCos = []
 for (i, pos) in enumerate(diff_X):
-    PosDotVel = diff_X[i]*diff_Vx[i]+diff_Y[i]*diff_Vy[i]+diff_Z[i]*diff_Vz[i]
-    dirCos.append(PosDotVel / (magPosDifference[i] * magVelDifference[i]))
+    PosDotVel = 0.5*diff_X[i]*mean_Vx[i]+0.5*diff_Y[i]*mean_Vy[i]+0.5*diff_Z[i]*mean_Vz[i]
+    dirCos.append(PosDotVel / (0.5*magPosDifference[i] * magVelMean[i]))
 
 axDirCos = plt.subplot(338,sharex = axDiffVy)
 axDirCos.plot(orbit0.t,dirCos)
 axDirCos.set_title("Direction Cosine")
-axDirCos.set_ylabel(r"$\frac{x \cdot v}{|x||v|}$",fontsize = 42)
+axDirCos.set_ylabel(r"$\frac{x \cdot \overline{v}}{|x||\overline{v}|}$",fontsize = 42)
 axDirCos.set_xlabel("t (Myr)")
 axDirCos.tick_params('both',length = 12)
 
