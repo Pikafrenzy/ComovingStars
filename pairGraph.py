@@ -56,7 +56,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     ax1Z.tick_params('y',labelleft = False)
     # ax1Z.set_box_aspect(1)
     
-    dirPathPair = dirPath+"/"+str(ID)
+    dirPathPair = dirPath+"/Star_Pair_"+str(ID)
     posPath = dirPathPair+"/Position_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
     if(saveGraphs): 
         os.mkdir(dirPathPair)
