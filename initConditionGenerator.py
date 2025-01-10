@@ -13,6 +13,7 @@ import numpy as np
 import os
 from datetime import datetime
 from Star import Star
+import pairGraph
 
 # Gala
 import gala.dynamics as gd
@@ -22,12 +23,13 @@ import gala.units as gu
 
 rng = np.random.default_rng(137)
 
-stars = []
+starCentres = []
+starPairCount = 12
 
 #toggle for whether graphs are saved automatically to computer
 saveGraphs = False
 
-for i in range(1000):
+for i in range(starPairCount):
     
     posR = rng.uniform(0.0,20.0)
     posTheta = rng.uniform(0.0,2*np.pi)
@@ -40,60 +42,61 @@ for i in range(1000):
     vy = rng.normal(220,30)*u.km/u.s
     vz = rng.normal(0.0,30)*u.km/u.s
     
-    stars.append(Star(posx,posy,posz,vx,vy,vz))
+    starCentres.append(Star(posx,posy,posz,vx,vy,vz))
 
-starsX = []
-starsY = []
-starsZ = []
-starsVx = []
-starsVy = []
-starsVz = []
-for i,star in enumerate(stars):
-    starsX.append(star.get_x().to_value())
-    starsY.append(star.get_y().to_value())
-    starsZ.append(star.get_z().to_value())
-    starsVx.append(star.get_Vx().to_value())
-    starsVy.append(star.get_Vy().to_value())
-    starsVz.append(star.get_Vz().to_value())
+#arrays for the centre of each pair
+starsCentreX = []
+starsCentreY = []
+starsCentreZ = []
+starsCentreVx = []
+starsCentreVy = []
+starsCentreVz = []
+for i,star in enumerate(starCentres):
+    starsCentreX.append(star.get_x().to_value())
+    starsCentreY.append(star.get_y().to_value())
+    starsCentreZ.append(star.get_z().to_value())
+    starsCentreVx.append(star.get_Vx().to_value())
+    starsCentreVy.append(star.get_Vy().to_value())
+    starsCentreVz.append(star.get_Vz().to_value())
     
 plt.rcParams.update({'font.size': 50})
 
 fig1 = plt.figure(figsize = (40,40),layout = 'constrained')
 
-axXY = plt.subplot(221)
-axXY.scatter(starsX,starsY)
-axXY.set_title("Y against X")
-axXY.set_ylabel("y (kpc)")
-axXY.tick_params('x',labelbottom = False)
-axXY.tick_params('both',length = 30)
+axCentreXY = plt.subplot(221)
+axCentreXY.scatter(starsCentreX,starsCentreY)
+axCentreXY.set_title("Y against X of Star Pair Centres")
+axCentreXY.set_ylabel("y (kpc)")
+axCentreXY.tick_params('x',labelbottom = False)
+axCentreXY.tick_params('both',length = 30)
 
-axXZ = plt.subplot(223,sharex=axXY)
-axXZ.scatter(starsX,starsZ)
-axXZ.set_title("Z against X")
-axXZ.set_ylabel("z (kpc)")
-axXZ.set_xlabel("x (kpc)")
-axXZ.tick_params('both',length = 30)
+axCentreXZ = plt.subplot(223,sharex=axCentreXY)
+axCentreXZ.scatter(starsCentreX,starsCentreZ)
+axCentreXZ.set_title("Z against X of Star Pair Centres")
+axCentreXZ.set_ylabel("z (kpc)")
+axCentreXZ.set_xlabel("x (kpc)")
+axCentreXZ.tick_params('both',length = 30)
 
-axVelXY = plt.subplot(222)
-axVelXY.scatter(starsVx,starsVy)
-axVelXY.set_title("$v_y$ against $v_x$")
-axVelXY.set_ylabel("$v_y$ (km/s)")
-axVelXY.tick_params('x',labelbottom = False)
-axVelXY.tick_params('both',length = 30)
+axCentreVelXY = plt.subplot(222)
+axCentreVelXY.scatter(starsCentreVx,starsCentreVy)
+axCentreVelXY.set_title("$v_y$ against $v_x$ of Star Pair Centres")
+axCentreVelXY.set_ylabel("$v_y$ (km/s)")
+axCentreVelXY.tick_params('x',labelbottom = False)
+axCentreVelXY.tick_params('both',length = 30)
 
-axVelXZ = plt.subplot(224,sharex=axVelXY)
-axVelXZ.scatter(starsVx,starsVz)
-axVelXZ.set_title("$v_z$ against $v_x$")
-axVelXZ.set_ylabel("$v_z$ (km/s)")
-axVelXZ.set_xlabel("$v_x$ (km/s)")
-axVelXZ.tick_params('both',length = 30)
+axCentreVelXZ = plt.subplot(224,sharex=axCentreVelXY)
+axCentreVelXZ.scatter(starsCentreVx,starsCentreVz)
+axCentreVelXZ.set_title("$v_z$ against $v_x$ of Star Pair Centres")
+axCentreVelXZ.set_ylabel("$v_z$ (km/s)")
+axCentreVelXZ.set_xlabel("$v_x$ (km/s)")
+axCentreVelXZ.tick_params('both',length = 30)
 
 dirPath = "../Plots/"+datetime.now().strftime("%Y%m%d_%H%M%S")
 if(saveGraphs): 
    os.mkdir(dirPath)
-distPath = dirPath+"/Distribution_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
+centreDistributionPath = dirPath+"/StarCentreDistribution_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
 if(saveGraphs): 
-    plt.savefig(distPath)
+    plt.savefig(centreDistributionPath)
     
     
 def pairGenerator(starCentre):
@@ -127,9 +130,16 @@ def pairGenerator(starCentre):
     return [star1, star2]
 
 starPairs = []
-for star in stars:
+for star in starCentres:
     starPair = pairGenerator(star)
     starPairs.append(starPair)
+
+starX = []
+starY = []
+starZ = []
+starVx = []
+starVy = []
+starVz = []  
 
 diff_X = []
 diff_Y = []
@@ -138,14 +148,24 @@ diff_Vx = []
 diff_Vy = []
 diff_Vz = []
 
-for starPair in starPairs:
+for j,starPair in enumerate(starPairs):
+    for (i,star) in enumerate(starPair):
+        starX.append(starPair[i].get_x().to_value())
+        starY.append(starPair[i].get_y().to_value())
+        starZ.append(starPair[i].get_z().to_value())
+        starVx.append(starPair[i].get_Vx().to_value())
+        starVy.append(starPair[i].get_Vy().to_value())
+        starVz.append(starPair[i].get_Vz().to_value())
     diff_X.append((starPair[1].get_x()-starPair[0].get_x()).to_value())
     diff_Y.append((starPair[1].get_y()-starPair[0].get_y()).to_value())
     diff_Z.append((starPair[1].get_z()-starPair[0].get_z()).to_value())
     diff_Vx.append((starPair[1].get_Vx()-starPair[0].get_Vx()).to_value())
     diff_Vy.append((starPair[1].get_Vy()-starPair[0].get_Vy()).to_value())
     diff_Vz.append((starPair[1].get_Vz()-starPair[0].get_Vz()).to_value())
+    pairGraph.pairGraph(j,starPair[0],starPair[1],saveGraphs,dirPath)
     
+plt.rcParams.update({'font.size': 50})
+
 fig2 = plt.figure(figsize = (40,40),layout = 'constrained')
 
 axPairXY = plt.subplot(221)
@@ -179,3 +199,38 @@ axPairVelXZ.tick_params('both',length = 30)
 diffPath = dirPath+"/Difference_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
 if(saveGraphs): 
     plt.savefig(diffPath)
+  
+fig3 = plt.figure(figsize = (40,40),layout = 'constrained')
+
+axPairXY = plt.subplot(221)
+axPairXY.scatter(starX,starY)
+axPairXY.set_title("Y against X of all Stars")
+axPairXY.set_ylabel("y (kpc)")
+axPairXY.tick_params('x',labelbottom = False)
+axPairXY.tick_params('both',length = 30)
+
+axPairXZ = plt.subplot(223,sharex=axPairXY)
+axPairXZ.scatter(starX,starZ)
+axPairXZ.set_title("Z against X of all Stars")
+axPairXZ.set_ylabel("z (kpc)")
+axPairXZ.set_xlabel("x (kpc)")
+axPairXZ.tick_params('both',length = 30)
+
+axPairVelXY = plt.subplot(222)
+axPairVelXY.scatter(starVx,starVy)
+axPairVelXY.set_title("$v_y$ against $v_x$ of all Stars")
+axPairVelXY.set_ylabel("$v_y$ (km/s)")
+axPairVelXY.tick_params('x',labelbottom = False)
+axPairVelXY.tick_params('both',length = 30)
+
+axPairVelXZ = plt.subplot(224,sharex=axPairVelXY)
+axPairVelXZ.scatter(starVx,starVz)
+axPairVelXZ.set_title("$v_z$ against $v_x$ of all Stars")
+axPairVelXZ.set_ylabel("$v_z$ (km/s)")
+axPairVelXZ.set_xlabel("$v_x$ (km/s)")
+axPairVelXZ.tick_params('both',length = 30)
+
+starDistributionPath = dirPath+"/StarDistribution_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
+if(saveGraphs): 
+    plt.savefig(starDistributionPath)
+    
