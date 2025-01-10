@@ -94,7 +94,7 @@ axCentreVelXZ.tick_params('both',length = 15)
 dirPath = "../Plots/"+datetime.now().strftime("%Y%m%d_%H%M%S")
 if(saveGraphs): 
    os.mkdir(dirPath)
-centreDistributionPath = dirPath+"/StarCentreDistribution_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
+centreDistributionPath = dirPath+"/CentreDistribution_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
 if(saveGraphs): 
     plt.savefig(centreDistributionPath)
     
