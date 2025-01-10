@@ -45,3 +45,10 @@ class Star:
         return self.Velocity.v_y
     def get_Vz(self):
         return self.Velocity.v_z
+    
+    def get_Pos(self):
+        pos = [self.Position.x.to_value(),self.Position.y.to_value(),self.Position.z.to_value()]*u.kpc
+        return pos
+    def get_Vel(self):
+        vel = [self.Velocity.v_x.to_value(),self.Velocity.v_y.to_value(),self.Velocity.v_z.to_value()]*u.km/u.s
+        return vel
