@@ -59,9 +59,9 @@ for i,star in enumerate(starCentres):
     starsCentreVy.append(star.get_Vy().to_value())
     starsCentreVz.append(star.get_Vz().to_value())
     
-plt.rcParams.update({'font.size': 50})
+plt.rcParams.update({'font.size': 25})
 
-fig1 = plt.figure(figsize = (40,40),layout = 'constrained')
+fig1 = plt.figure(figsize = (20,20),layout = 'constrained')
 
 axCentreXY = plt.subplot(221)
 axCentreXY.scatter(starsCentreX,starsCentreY)
@@ -164,71 +164,71 @@ for j,starPair in enumerate(starPairs):
     diff_Vz.append((starPair[1].get_Vz()-starPair[0].get_Vz()).to_value())
     pairGraph.pairGraph(j,starPair[0],starPair[1],saveGraphs,dirPath)
     
-plt.rcParams.update({'font.size': 50})
+plt.rcParams.update({'font.size': 25})
 
-fig2 = plt.figure(figsize = (40,40),layout = 'constrained')
+fig2 = plt.figure(figsize = (20,20),layout = 'constrained')
 
 axPairXY = plt.subplot(221)
 axPairXY.scatter(diff_X,diff_Y)
 axPairXY.set_title("Difference in Y against X")
 axPairXY.tick_params('x',labelbottom = False)
 axPairXY.set_ylabel("y (kpc)")
-axPairXY.tick_params('both',length = 30)
+axPairXY.tick_params('both',length = 15)
 
 axPairXZ = plt.subplot(223, sharex = axPairXY)
 axPairXZ.scatter(diff_X,diff_Z)
 axPairXZ.set_title("Difference in Z against X")
 axPairXZ.set_ylabel("z (kpc)")
 axPairXZ.set_xlabel("x (kpc)")
-axPairXZ.tick_params('both',length = 30)
+axPairXZ.tick_params('both',length = 15)
 
 axPairVelXY = plt.subplot(222)
 axPairVelXY.scatter(diff_Vx,diff_Vy)
 axPairVelXY.set_title("Difference in $v_y$ against $v_x$")
 axPairVelXY.tick_params('x',labelbottom = False)
 axPairVelXY.set_ylabel("y (km/s)")
-axPairVelXY.tick_params('both',length = 30)
+axPairVelXY.tick_params('both',length = 15)
 
 axPairVelXZ = plt.subplot(224)
 axPairVelXZ.scatter(diff_Vx,diff_Vz)
 axPairVelXZ.set_title("Difference in $v_z$ against $v_x$")
 axPairVelXZ.set_ylabel("z (km/s)")
 axPairVelXZ.set_xlabel("x (km/s)")
-axPairVelXZ.tick_params('both',length = 30)
+axPairVelXZ.tick_params('both',length = 15)
 
 diffPath = dirPath+"/Difference_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
 if(saveGraphs): 
     plt.savefig(diffPath)
   
-fig3 = plt.figure(figsize = (40,40),layout = 'constrained')
+fig3 = plt.figure(figsize = (20,20),layout = 'constrained')
 
 axPairXY = plt.subplot(221)
 axPairXY.scatter(starX,starY)
 axPairXY.set_title("Y against X of all Stars")
 axPairXY.set_ylabel("y (kpc)")
 axPairXY.tick_params('x',labelbottom = False)
-axPairXY.tick_params('both',length = 30)
+axPairXY.tick_params('both',length = 15)
 
 axPairXZ = plt.subplot(223,sharex=axPairXY)
 axPairXZ.scatter(starX,starZ)
 axPairXZ.set_title("Z against X of all Stars")
 axPairXZ.set_ylabel("z (kpc)")
 axPairXZ.set_xlabel("x (kpc)")
-axPairXZ.tick_params('both',length = 30)
+axPairXZ.tick_params('both',length = 15)
 
 axPairVelXY = plt.subplot(222)
 axPairVelXY.scatter(starVx,starVy)
 axPairVelXY.set_title("$v_y$ against $v_x$ of all Stars")
 axPairVelXY.set_ylabel("$v_y$ (km/s)")
 axPairVelXY.tick_params('x',labelbottom = False)
-axPairVelXY.tick_params('both',length = 30)
+axPairVelXY.tick_params('both',length = 15)
 
 axPairVelXZ = plt.subplot(224,sharex=axPairVelXY)
 axPairVelXZ.scatter(starVx,starVz)
 axPairVelXZ.set_title("$v_z$ against $v_x$ of all Stars")
 axPairVelXZ.set_ylabel("$v_z$ (km/s)")
 axPairVelXZ.set_xlabel("$v_x$ (km/s)")
-axPairVelXZ.tick_params('both',length = 30)
+axPairVelXZ.tick_params('both',length = 15)
 
 starDistributionPath = dirPath+"/StarDistribution_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
 if(saveGraphs): 
