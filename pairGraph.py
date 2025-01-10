@@ -37,7 +37,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     
     plt.rcParams.update({'font.size': 10})
     
-    fig1 = plt.figure(figsize = (20,20), layout = "constrained")
+    fig1 = plt.figure(layout = "constrained")
     ax1Y = plt.subplot(121)
     ax1Z = plt.subplot(122,sharey = ax1Y)
     
@@ -45,18 +45,21 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     ax1Y.plot(orbit0.pos.x,orbit0.pos.y,label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
     ax1Y.plot(orbit1.pos.x,orbit1.pos.y,label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
     ax1Y.legend(fontsize=10, bbox_to_anchor=(0.9,-0.2))
-    ax1Y.set_aspect('equal','box')
+    ax1Y.set_box_aspect(1)
     ax1Y.set_title("Y against X")
+    # ax1Y.set_box_aspect(1)
     
     ax1Z.plot(orbit0.pos.x,orbit0.pos.z,label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
     ax1Z.plot(orbit1.pos.x,orbit1.pos.z,label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
-    ax1Z.axis('equal')
+    ax1Z.set_box_aspect(1)
     ax1Z.set_title("Z against X")
+    ax1Z.tick_params('y',labelleft = False)
+    # ax1Z.set_box_aspect(1)
     
     dirPathPair = dirPath+"/"+str(ID)
-    os.mkdir(dirPathPair)
     posPath = dirPathPair+"/Position_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
     if(saveGraphs): 
+        os.mkdir(dirPathPair)
         plt.savefig(posPath)
     
     plt.rcParams.update({'font.size': 28})
