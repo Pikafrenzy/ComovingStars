@@ -11,8 +11,6 @@ import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-from datetime import datetime
-from Star import Star
 
 # Gala
 import gala.dynamics as gd
@@ -57,7 +55,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     # ax1Z.set_box_aspect(1)
     
     dirPathPair = dirPath+"/Star_Pair_"+str(ID)
-    posPath = dirPathPair+"/Position_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
+    posPath = dirPathPair+"/Position.png"
     if(saveGraphs): 
         os.mkdir(dirPathPair)
         plt.savefig(posPath)
@@ -177,13 +175,14 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
         dirCos.append(PosDotVel / (0.5*magPosDifference[i] * magVelMean[i]))
     
     axDirCos = plt.subplot(338,sharex = axDiffVy)
-    axDirCos.plot(orbit0.t,dirCos)
+    axDirCos.plot(orbit0.t,dirCos)    
+    axDirCos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDirCos.set_title("Direction Cosine")
     axDirCos.set_ylabel(r"$\frac{x \cdot \overline{v}}{|x||\overline{v}|}$",fontsize = 42)
     axDirCos.set_xlabel("t (Myr)")
     axDirCos.tick_params('both',length = 12)
     
-    diffPath = dirPathPair+"/VariableDifference_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
+    diffPath = dirPathPair+"/VariableDifference.png"
     if(saveGraphs): 
        plt.savefig(diffPath)
        
