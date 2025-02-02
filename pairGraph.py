@@ -9,6 +9,7 @@ Created on Mon Oct 21 15:46:15 2024
 import astropy.coordinates as coord
 import astropy.units as u
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import numpy as np
 import os
 
@@ -34,23 +35,27 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     orbit1 = mw.integrate_orbit(w1, dt = 1*u.Myr, t1=0, t2 = T)
     
     plt.rcParams.update({'font.size': 10})
+    fig = plt.figure(figsize=(15, 12),layout = "constrained")
+    gs = gridspec.GridSpec(5, 6, figure=fig, height_ratios=[2, 2, 1, 1, 1], width_ratios=[2, 2, 2, 2, 2, 2])  
     
-    fig1 = plt.figure(figsize = (10,10),layout = "constrained")
-    axY = plt.subplot(221)
-    axZ = plt.subplot(223,sharex = axY)
-    axVelY = plt.subplot(222)
-    axVelZ = plt.subplot(224,sharex = axVelY)
+    axY = fig.add_subplot(gs[0,0:3])
+    axZ = fig.add_subplot(gs[1,0:3],sharex = axY)
+    axVelY = fig.add_subplot(gs[0,3:6])
+    axVelZ = fig.add_subplot(gs[1,3:6],sharex = axVelY)
     
     axY.plot(orbit0.pos.x,orbit0.pos.y,label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
     axY.plot(orbit1.pos.x,orbit1.pos.y,label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
     axY.set_box_aspect(1)
+    axY.legend(fontsize=10, bbox_to_anchor=(0.7,1.5))
     axY.set_title("Y against X")
+    axY.set_ylabel("y (kpc)")
     axY.tick_params('x',labelbottom = False)
     
     axZ.plot(orbit0.pos.x,orbit0.pos.z,label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
     axZ.plot(orbit1.pos.x,orbit1.pos.z,label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
-    axZ.legend(fontsize=10, bbox_to_anchor=(0.7,-0.1))
     axZ.set_box_aspect(1)
+    axZ.set_ylabel("z (kpc)")
+    axZ.set_xlabel("x (kpc)")
     axZ.set_title("Z against X")
 
     axVelY.plot(orbit0.v_x,orbit0.v_y,label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
@@ -58,19 +63,14 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axVelY.set_box_aspect(1)
     axVelY.tick_params('x',labelbottom = False)
     axVelY.set_title("$v_y$ against $v_x$")
+    axVelY.set_ylabel("$v_y$ (km/s)")
     
     axVelZ.plot(orbit0.v_x,orbit0.v_z,label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
     axVelZ.plot(orbit1.v_x,orbit1.v_z,label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
     axVelZ.set_box_aspect(1)
     axVelZ.set_title("$v_z$ against $v_x$")
-    
-    dirPathPair = dirPath+"/Star_Pair_"+str(ID)
-    posPath = dirPathPair+"/Position.png"
-    if(saveGraphs): 
-        os.mkdir(dirPathPair)
-        plt.savefig(posPath)
-    
-    plt.rcParams.update({'font.size': 28})
+    axVelZ.set_ylabel("$v_z$ (km/s)")
+    axVelZ.set_ylabel("$v_x$ (km/s)")
     
     diff_X = orbit1.pos.x-orbit0.pos.x
     diff_Y = orbit1.pos.y-orbit0.pos.y
@@ -78,17 +78,14 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     diff_Vx = (orbit1.v_x-orbit0.v_x).to(u.km/u.s)
     diff_Vy = (orbit1.v_y-orbit0.v_y).to(u.km/u.s)
     diff_Vz = (orbit1.v_z-orbit0.v_z).to(u.km/u.s)
-    
-    fig2 = plt.figure(figsize = (30,10), layout = "constrained")
-    
+        
     #position plots
-    axDiffX = plt.subplot(331)
+    axDiffX = fig.add_subplot(gs[2,0:2])
     axDiffX.plot(orbit0.t,diff_X)
     axDiffX.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffX.set_title("Difference in x")
     axDiffX.set_ylabel("Position (kpc)")
     axDiffX.tick_params('x',labelbottom = False)
-    axDiffX.tick_params('both',length = 12)
     
     def checkSharing(x1, x2, margin):
         diff_min = x2.min()-x1.min()
@@ -97,81 +94,74 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
         return share
     
     if checkSharing(diff_X,diff_Y,0.01):
-        axDiffY = plt.subplot(332,sharey=axDiffX)
+        axDiffY = fig.add_subplot(gs[2,2:4],sharey=axDiffX)
         axDiffY.tick_params('y',labelleft = False)
     else:
-        axDiffY = plt.subplot(332)
+        axDiffY = fig.add_subplot(gs[2,2:4])
         axDiffY.set_ylabel("Position (kpc)")
     axDiffY.plot(orbit0.t,diff_Y)
     axDiffY.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffY.set_title("Difference in y")
     axDiffY.tick_params('x',labelbottom = False)
-    axDiffY.tick_params('both',length = 12)
     
     if checkSharing(diff_Y,diff_Z, 0.01):
-        axDiffZ = plt.subplot(333,sharey=axDiffY)
+        axDiffZ = fig.add_subplot(gs[2,4:6],sharey=axDiffY)
         axDiffZ.tick_params('y',labelleft = False)
     else:
-        axDiffZ = plt.subplot(333)
+        axDiffZ = fig.add_subplot(gs[2,4:6])
         axDiffZ.set_ylabel("Position (kpc)")
     axDiffZ.plot(orbit0.t,diff_Z)
     axDiffZ.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffZ.set_title("Difference in z")
     axDiffZ.tick_params('x',labelbottom = False)
-    axDiffZ.tick_params('both',length = 12)
     
     #velocity plots
-    axDiffVx = plt.subplot(334,sharex=axDiffX)
+    axDiffVx = fig.add_subplot(gs[3,0:2],sharex=axDiffX)
     axDiffVx.plot(orbit0.t,diff_Vx)
     axDiffVx.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffVx.set_title("Difference in $v_x$")
     axDiffVx.set_ylabel("Velocity (km/s)")
     axDiffVx.tick_params('x',labelbottom = False)
-    axDiffVx.tick_params('both',length = 12)
     
     if checkSharing(diff_Vx,diff_Vy, 0.1):
-        axDiffVy = plt.subplot(335,sharex = axDiffY, sharey=axDiffVx)
+        axDiffVy = fig.add_subplot(gs[3,2:4],sharex = axDiffY, sharey=axDiffVx)
         axDiffVy.tick_params('y',labelleft = False)
     else:
-        axDiffVy = plt.subplot(335)
+        axDiffVy = fig.add_subplot(gs[3,2:4])
         axDiffVy.set_ylabel("Velocity (km/s)")
-    axDiffVy.tick_params('both',length = 12)
     axDiffVy.plot(orbit0.t,diff_Vy)
     axDiffVy.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffVy.set_title("Difference in $v_y$")
     axDiffVy.tick_params('x',labelbottom = False)
     
     if checkSharing(diff_Vy,diff_Vz, 0.1):
-        axDiffVz = plt.subplot(336,sharex = axDiffZ, sharey=axDiffVy)
+        axDiffVz = fig.add_subplot(gs[3,4:6],sharex = axDiffZ, sharey=axDiffVy)
         axDiffVz.tick_params('y',labelleft = False)
     else:
-        axDiffVz = plt.subplot(336)
+        axDiffVz = fig.add_subplot(gs[3,4:6])
         axDiffVz.set_ylabel("Velocity (km/s)")
     axDiffVz.plot(orbit0.t,diff_Vz)
     axDiffVz.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffVz.set_title("Difference in $v_z$")
     axDiffVz.tick_params('x',labelbottom = False)
-    axDiffVz.tick_params('both',length = 12)
     
     magPosDifference = np.sqrt(diff_X**2+diff_Y**2+diff_Z**2)
     
-    axDiffMagPos = plt.subplot(337,sharex = axDiffVx)
+    axDiffMagPos = fig.add_subplot(gs[4,0:2],sharex = axDiffVx)
     axDiffMagPos.plot(orbit0.t,magPosDifference)
     axDiffMagPos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffMagPos.set_title("Magnitude of difference in position")
     axDiffMagPos.set_ylabel(r"$|\vec x|$ (kpc)")
     axDiffMagPos.set_xlabel("t (Myr)")
-    axDiffMagPos.tick_params('both',length = 12)
     
     magVelDifference = np.sqrt(diff_Vx**2+diff_Vy**2+diff_Vz**2)
     
-    axDiffMagVel = plt.subplot(339,sharex = axDiffVz)
+    axDiffMagVel = fig.add_subplot(gs[4,4:6],sharex = axDiffVz)
     axDiffMagVel.plot(orbit0.t,magVelDifference)
     axDiffMagVel.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffMagVel.set_title("Magnitude of difference in velocity")
     axDiffMagVel.set_ylabel(r"$|\vec v|$ (km/s)")
     axDiffMagVel.set_xlabel("t (Myr)")
-    axDiffMagVel.tick_params('both',length = 12)
     
     mean_Vx = 0.5*(orbit1.v_x+orbit0.v_x).to(u.km/u.s)
     mean_Vy = 0.5*(orbit1.v_y+orbit0.v_y).to(u.km/u.s)
@@ -184,20 +174,17 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
         PosDotVel = 0.5*diff_X[i]*mean_Vx[i]+0.5*diff_Y[i]*mean_Vy[i]+0.5*diff_Z[i]*mean_Vz[i]
         dirCos.append(PosDotVel / (0.5*magPosDifference[i] * magVelMean[i]))
     
-    axDirCos = plt.subplot(338,sharex = axDiffVy)
+    axDirCos = fig.add_subplot(gs[4,2:4],sharex = axDiffVy)
     axDirCos.plot(orbit0.t,dirCos)    
     axDirCos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDirCos.set_title("Direction Cosine")
-    axDirCos.set_ylabel(r"$\frac{x \cdot \overline{v}}{|x||\overline{v}|}$",fontsize = 42)
+    axDirCos.set_ylabel(r"$\frac{x \cdot \overline{v}}{|x||\overline{v}|}$")
     axDirCos.set_xlabel("t (Myr)")
-    axDirCos.tick_params('both',length = 12)
     
-    diffPath = dirPathPair+"/VariableDifference.png"
+    pathPair = dirPath+"/Star_Pair_"+str(ID)+".png"
     if(saveGraphs): 
-       plt.savefig(diffPath)
-       
-    plt.close(fig1)
-    plt.close(fig2)
+        plt.savefig(pathPair)    
+    plt.close(fig)
     
     
     
