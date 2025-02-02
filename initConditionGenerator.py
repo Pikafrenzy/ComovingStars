@@ -29,6 +29,17 @@ starPairCount = 12
 #toggle for whether graphs are saved automatically to computer
 saveGraphs = False
 
+def generateVelocity(posx,posy,posz):
+    magPos = np.sqrt(posx**2+posy**2+posz**2)
+    normPosX = posx/magPos
+    normPosY = posy/magPos
+    normPosZ = posz/magPos
+    normPosVec = [normPosX,normPosY,normPosZ]
+    zHat = [0,0,1]
+    vel = np.cross(zHat,normPosVec)*220
+    return vel
+
+
 for i in range(starPairCount):
     
     posR = rng.uniform(0.0,20.0)
@@ -38,9 +49,10 @@ for i in range(starPairCount):
     posy = posR*np.sin(posTheta)*u.kpc
     posz = 0.0*u.kpc
     
-    vx = rng.normal(0.0,30)*u.km/u.s
-    vy = rng.normal(220,30)*u.km/u.s
-    vz = rng.normal(0.0,30)*u.km/u.s
+    velMean = generateVelocity(posx.to_value(),posy.to_value(),posz.to_value())
+    vx = rng.normal(velMean[0],30)*u.km/u.s
+    vy = rng.normal(velMean[1],30)*u.km/u.s
+    vz = rng.normal(velMean[2],30)*u.km/u.s
     
     starCentres.append(Star(posx,posy,posz,vx,vy,vz))
 
