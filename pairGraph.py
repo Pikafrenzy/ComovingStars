@@ -58,19 +58,19 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axZ.set_xlabel("x (kpc)")
     axZ.set_title("Z against X")
 
-    axVelY.plot(orbit0.v_x,orbit0.v_y,label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
-    axVelY.plot(orbit1.v_x,orbit1.v_y,label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
+    axVelY.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_y.to(u.km/u.s),label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
+    axVelY.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_y.to(u.km/u.s),label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
     axVelY.set_box_aspect(1)
     axVelY.tick_params('x',labelbottom = False)
     axVelY.set_title("$v_y$ against $v_x$")
     axVelY.set_ylabel("$v_y$ (km/s)")
     
-    axVelZ.plot(orbit0.v_x,orbit0.v_z,label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
-    axVelZ.plot(orbit1.v_x,orbit1.v_z,label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
+    axVelZ.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_z.to(u.km/u.s),label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
+    axVelZ.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_z.to(u.km/u.s),label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
     axVelZ.set_box_aspect(1)
     axVelZ.set_title("$v_z$ against $v_x$")
     axVelZ.set_ylabel("$v_z$ (km/s)")
-    axVelZ.set_ylabel("$v_x$ (km/s)")
+    axVelZ.set_xlabel("$v_x$ (km/s)")
     
     diff_X = orbit1.pos.x-orbit0.pos.x
     diff_Y = orbit1.pos.y-orbit0.pos.y
