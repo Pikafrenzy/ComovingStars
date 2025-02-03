@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from datetime import datetime
+import time
 from Star import Star
 import pairGraph
 
@@ -20,7 +21,7 @@ import gala.dynamics as gd
 import gala.potential as gp
 import gala.units as gu
 
-
+startTime = time.time()
 rng = np.random.default_rng(137)
 
 starCentres = []
@@ -246,3 +247,6 @@ starDistributionPath = dirPath+"/StarDistribution_"+datetime.now().strftime("%Y%
 if(saveGraphs): 
     plt.savefig(starDistributionPath)
     
+endTime = time.time()
+
+print("This took " + str(endTime-startTime) + " seconds")
