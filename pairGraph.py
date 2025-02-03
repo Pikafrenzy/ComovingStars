@@ -45,7 +45,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     
     plt.rcParams.update({'font.size': 10})
     fig = plt.figure(figsize=(16, 12),layout = 'constrained')
-    gs = gridspec.GridSpec(4, 12, figure=fig, height_ratios=[2, 1, 1, 1],wspace=0.2,hspace=0.2)  
+    gs = gridspec.GridSpec(5, 12, figure=fig, height_ratios=[2, 1, 1, 1, 1],wspace=0.2,hspace=0.2)  
     axY = fig.add_subplot(gs[0,0:3])
     axZ = fig.add_subplot(gs[0,3:6],sharey = axY)
     axVelY = fig.add_subplot(gs[0,6:9])
@@ -160,7 +160,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDiffMagPos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffMagPos.set_title("Magnitude of difference in position")
     axDiffMagPos.set_ylabel(r"$|\vec x|$ (kpc)")
-    axDiffMagPos.set_xlabel("t (Myr)")
+    axDiffMagPos.tick_params('x',labelbottom = False)
     
     magVelDifference = np.sqrt(diff_Vx**2+diff_Vy**2+diff_Vz**2)
     
@@ -169,7 +169,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDiffMagVel.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffMagVel.set_title("Magnitude of difference in velocity")
     axDiffMagVel.set_ylabel(r"$|\vec v|$ (km/s)")
-    axDiffMagVel.set_xlabel("t (Myr)")
+    axDiffMagVel.tick_params('x',labelbottom = False)
     
     mean_Vx = 0.5*(orbit1.v_x+orbit0.v_x).to(u.km/u.s)
     mean_Vy = 0.5*(orbit1.v_y+orbit0.v_y).to(u.km/u.s)
@@ -187,7 +187,30 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDirCos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDirCos.set_title("Direction Cosine")
     axDirCos.set_ylabel(r"$\frac{x \cdot \overline{v}}{|x||\overline{v}|}$")
-    axDirCos.set_xlabel("t (Myr)")
+    axDirCos.tick_params('x',labelbottom = False)
+    
+    diffKE = (orbit1.kinetic_energy()-orbit0.kinetic_energy()).to(u.km**2/u.s**2)
+    diffPE = (orbit1.potential_energy()-orbit0.potential_energy()).to(u.km**2/u.s**2)
+    diffHamiltonian = (orbit1.energy()-orbit0.energy()).to(u.km**2/u.s**2)
+    
+    axKE = fig.add_subplot(gs[4,0:4])
+    axKE.plot(orbit0.t,diffKE)
+    axKE.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axKE.set_title("Difference in Kinetic Energy")
+    axKE.set_ylabel(r"Energy ($\text{km}^2 \text{s}^{-2}$)")
+    axKE.set_xlabel("t (Myr)")
+    
+    axPE = fig.add_subplot(gs[4,4:8],sharey = axKE)
+    axPE.plot(orbit0.t,diffPE)
+    axPE.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axPE.set_title("Difference in Potential Energy")
+    axPE.set_xlabel("t (Myr)")
+    axPE.tick_params('y',labelleft = False)
+    
+    axHamiltonian = fig.add_subplot(gs[4,8:12])
+    axHamiltonian.plot(orbit0.t,diffHamiltonian)
+    axHamiltonian.set_title("Difference in Total Energy")
+    axHamiltonian.set_xlabel("t (Myr)")
     
     pathPair = dirPath+"/Star_Pair_"+str(ID)+".png"
     if(saveGraphs): 
