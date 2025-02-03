@@ -31,6 +31,12 @@ def makeLabel(pos, vel):
     label += "["+str(trunc3dp(vel[0].to_value()))+", "+str(trunc3dp(vel[1].to_value()))+", "+str(trunc3dp(vel[2].to_value()))+"] "+vel[0].unit.to_string()
     return label
 
+def checkSharing(x1, x2, margin):
+    diff_min = x2.min()-x1.min()
+    diff_max = x2.max()-x1.max()
+    share = diff_min.to_value() <= margin and diff_max.to_value() <= margin
+    return share
+
 def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     w0 = gd.PhaseSpacePosition(pos = star0.get_Pos(),vel = star0.get_Vel())
     w1 = gd.PhaseSpacePosition(pos = star1.get_Pos(),vel = star1.get_Vel())
@@ -94,12 +100,6 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDiffX.set_title("Difference in x")
     axDiffX.set_ylabel("Position (kpc)")
     axDiffX.tick_params('x',labelbottom = False)
-    
-    def checkSharing(x1, x2, margin):
-        diff_min = x2.min()-x1.min()
-        diff_max = x2.max()-x1.max()
-        share = diff_min.to_value() <= margin and diff_max.to_value() <= margin
-        return share
     
     if checkSharing(diff_X,diff_Y,0.01):
         axDiffY = fig.add_subplot(gs[1,4:8],sharey=axDiffX)
