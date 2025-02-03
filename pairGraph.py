@@ -20,12 +20,15 @@ import gala.units as gu
 
 #initial variables
 mw = gp.MilkyWayPotential()
-T = 500*u.Myr
+T = 1000*u.Myr
 def trunc3dp(number):
     return np.trunc(number*1e3)/1e3
     
-def makeLabel(vec3):
-    label = "["+str(trunc3dp(vec3[0].to_value()))+", "+str(trunc3dp(vec3[1].to_value()))+", "+str(trunc3dp(vec3[2].to_value()))+"] "+vec3[0].unit.to_string()
+def makeLabel(pos, vel):
+    label = "Position = "
+    label += "["+str(trunc3dp(pos[0].to_value()))+", "+str(trunc3dp(pos[1].to_value()))+", "+str(trunc3dp(pos[2].to_value()))+"] "+pos[0].unit.to_string()
+    label += ", Velocity = "
+    label += "["+str(trunc3dp(vel[0].to_value()))+", "+str(trunc3dp(vel[1].to_value()))+", "+str(trunc3dp(vel[2].to_value()))+"] "+vel[0].unit.to_string()
     return label
 
 def pairGraph(ID,star0, star1, saveGraphs, dirPath):
@@ -43,31 +46,31 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axVelY = fig.add_subplot(gs[0,3:6])
     axVelZ = fig.add_subplot(gs[1,3:6],sharex = axVelY)
     
-    axY.plot(orbit0.pos.x,orbit0.pos.y,label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
-    axY.plot(orbit1.pos.x,orbit1.pos.y,label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
-    axY.set_box_aspect(1)
-    axY.legend(fontsize=10, bbox_to_anchor=(0.7,1.5))
+    axY.plot(orbit0.pos.x,orbit0.pos.y,label=makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
+    axY.plot(orbit1.pos.x,orbit1.pos.y,label=makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
+    # axY.set_box_aspect(1)
+    axY.legend(fontsize=10, bbox_to_anchor=(0.9,1.5))
     axY.set_title("Y against X")
     axY.set_ylabel("y (kpc)")
     axY.tick_params('x',labelbottom = False)
     
-    axZ.plot(orbit0.pos.x,orbit0.pos.z,label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
-    axZ.plot(orbit1.pos.x,orbit1.pos.z,label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
-    axZ.set_box_aspect(1)
+    axZ.plot(orbit0.pos.x,orbit0.pos.z,label="Position = "+makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
+    axZ.plot(orbit1.pos.x,orbit1.pos.z,label="Position = "+makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
+    # axZ.set_box_aspect(1)
     axZ.set_ylabel("z (kpc)")
     axZ.set_xlabel("x (kpc)")
     axZ.set_title("Z against X")
 
-    axVelY.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_y.to(u.km/u.s),label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
-    axVelY.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_y.to(u.km/u.s),label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
-    axVelY.set_box_aspect(1)
+    axVelY.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_y.to(u.km/u.s),label="Position = "+makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
+    axVelY.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_y.to(u.km/u.s),label="Position = "+makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
+    # axVelY.set_box_aspect(1)
     axVelY.tick_params('x',labelbottom = False)
     axVelY.set_title("$v_y$ against $v_x$")
     axVelY.set_ylabel("$v_y$ (km/s)")
     
-    axVelZ.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_z.to(u.km/u.s),label="Position = "+makeLabel(star0.get_Pos()),linewidth = 0.3, color = 'r')
-    axVelZ.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_z.to(u.km/u.s),label="Position = "+makeLabel(star1.get_Pos()),linewidth = 0.3, color = 'b')
-    axVelZ.set_box_aspect(1)
+    axVelZ.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_z.to(u.km/u.s),label="Position = "+makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
+    axVelZ.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_z.to(u.km/u.s),label="Position = "+makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
+    # axVelZ.set_box_aspect(1)
     axVelZ.set_title("$v_z$ against $v_x$")
     axVelZ.set_ylabel("$v_z$ (km/s)")
     axVelZ.set_xlabel("$v_x$ (km/s)")
