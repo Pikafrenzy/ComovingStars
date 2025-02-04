@@ -45,13 +45,15 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     orbit1 = mw.integrate_orbit(w1, dt = 1*u.Myr, t1=0, t2 = T)
     
     plt.rcParams.update({'font.size': 10})
-    fig = plt.figure(figsize=(16, 12),layout = 'constrained')
-    gs = gridspec.GridSpec(5, 12, figure=fig, height_ratios=[2, 1, 1, 1, 1],wspace=0.2,hspace=0.2)  
-    axY = fig.add_subplot(gs[0,0:3])
-    axZ = fig.add_subplot(gs[0,3:6],sharey = axY)
-    axVelY = fig.add_subplot(gs[0,6:9])
-    axVelZ = fig.add_subplot(gs[0,9:12])
+    plt.rcParams.update({'figure.constrained_layout.use':True})
+    fig = plt.figure(figsize=(16, 12))
+    subfigs = fig.subfigures(2,1, height_ratios = [2,4])
     
+    gs0 = gridspec.GridSpec(1,4,figure = subfigs[0])
+    axY = subfigs[0].add_subplot(gs0[0])
+    axZ = subfigs[0].add_subplot(gs0[1],sharey = axY)
+    axVelY = subfigs[0].add_subplot(gs0[2])
+    axVelZ = subfigs[0].add_subplot(gs0[3],sharey = axVelY)
     
     axY.plot(orbit0.pos.x,orbit0.pos.y,label=makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
     axY.plot(orbit1.pos.x,orbit1.pos.y,label=makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
@@ -61,6 +63,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axY.set_ylabel("y (kpc), z (kpc)")
     axY.set_xlabel("x (kpc)")
     
+    fig.legend(loc = 'outside upper left')
     
     axZ.plot(orbit0.pos.x,orbit0.pos.z,label=makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
     axZ.plot(orbit1.pos.x,orbit1.pos.z,label=makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
@@ -96,10 +99,10 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     diff_Vy = (orbit1.v_y-orbit0.v_y).to(u.km/u.s)
     diff_Vz = (orbit1.v_z-orbit0.v_z).to(u.km/u.s)
         
-    #position plots
-    axDiffX = fig.add_subplot(gs[1,0:4])
+    gs1 = gridspec.GridSpec(4, 3, figure = subfigs[1])
     
     # position plots
+    axDiffX = subfigs[1].add_subplot(gs1[0,0])
     axDiffX.plot(orbit0.t,diff_X)
     axDiffX.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffX.set_title("Difference in x")
@@ -107,10 +110,10 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDiffX.tick_params('x',labelbottom = False)
     
     if checkSharing(diff_X,diff_Y,0.01):
-        axDiffY = fig.add_subplot(gs[1,4:8],sharey=axDiffX)
+        axDiffY = subfigs[1].add_subplot(gs1[0,1],sharey=axDiffX)
         axDiffY.tick_params('y',labelleft = False)
     else:
-        axDiffY = fig.add_subplot(gs[1,4:8])
+        axDiffY = subfigs[1].add_subplot(gs1[0,1])
         axDiffY.set_ylabel("Position (kpc)")
     axDiffY.plot(orbit0.t,diff_Y)
     axDiffY.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
@@ -118,18 +121,18 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDiffY.tick_params('x',labelbottom = False)
     
     if checkSharing(diff_Y,diff_Z, 0.01):
-        axDiffZ = fig.add_subplot(gs[1,8:12],sharey=axDiffY)
+        axDiffZ = subfigs[1].add_subplot(gs1[0,2],sharey=axDiffY)
         axDiffZ.tick_params('y',labelleft = False)
     else:
-        axDiffZ = fig.add_subplot(gs[1,8:12])
+        axDiffZ = fig.add_subplot(gs1[0,2])
         axDiffZ.set_ylabel("Position (kpc)")
     axDiffZ.plot(orbit0.t,diff_Z)
     axDiffZ.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffZ.set_title("Difference in z")
     axDiffZ.tick_params('x',labelbottom = False)
     
-    axDiffVx = fig.add_subplot(gs[2,0:4],sharex=axDiffX)
     # velocity plots
+    axDiffVx = fig.add_subplot(gs1[1,0],sharex=axDiffX)
     axDiffVx.plot(orbit0.t,diff_Vx)
     axDiffVx.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffVx.set_title("Difference in $v_x$")
@@ -137,10 +140,10 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDiffVx.tick_params('x',labelbottom = False)
     
     if checkSharing(diff_Vx,diff_Vy, 0.1):
-        axDiffVy = fig.add_subplot(gs[2,4:8],sharex = axDiffY, sharey=axDiffVx)
+        axDiffVy = fig.add_subplot(gs1[1,1],sharex = axDiffY, sharey=axDiffVx)
         axDiffVy.tick_params('y',labelleft = False)
     else:
-        axDiffVy = fig.add_subplot(gs[2,4:8])
+        axDiffVy = fig.add_subplot(gs1[1,1])
         axDiffVy.set_ylabel("Velocity (km/s)")
     axDiffVy.plot(orbit0.t,diff_Vy)
     axDiffVy.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
@@ -148,10 +151,10 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDiffVy.tick_params('x',labelbottom = False)
     
     if checkSharing(diff_Vy,diff_Vz, 0.1):
-        axDiffVz = fig.add_subplot(gs[2,8:12],sharex = axDiffZ, sharey=axDiffVy)
+        axDiffVz = fig.add_subplot(gs1[1,2],sharex = axDiffZ, sharey=axDiffVy)
         axDiffVz.tick_params('y',labelleft = False)
     else:
-        axDiffVz = fig.add_subplot(gs[2,8:12])
+        axDiffVz = fig.add_subplot(gs1[1,2])
         axDiffVz.set_ylabel("Velocity (km/s)")
     axDiffVz.plot(orbit0.t,diff_Vz)
     axDiffVz.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
@@ -161,7 +164,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     # magnitudes and direction cosine plots
     magPosDifference = np.sqrt(diff_X**2+diff_Y**2+diff_Z**2)
     
-    axDiffMagPos = fig.add_subplot(gs[3,0:4],sharex = axDiffVx)
+    axDiffMagPos = fig.add_subplot(gs1[2,0],sharex = axDiffVx)
     axDiffMagPos.plot(orbit0.t,magPosDifference)
     axDiffMagPos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffMagPos.set_title("Magnitude of difference in position")
@@ -170,7 +173,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     
     magVelDifference = np.sqrt(diff_Vx**2+diff_Vy**2+diff_Vz**2)
     
-    axDiffMagVel = fig.add_subplot(gs[3,8:12],sharex = axDiffVz)
+    axDiffMagVel = fig.add_subplot(gs1[2,2],sharex = axDiffVz)
     axDiffMagVel.plot(orbit0.t,magVelDifference)
     axDiffMagVel.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffMagVel.set_title("Magnitude of difference in velocity")
@@ -188,7 +191,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
         PosDotVel = 0.5*diff_X[i]*mean_Vx[i]+0.5*diff_Y[i]*mean_Vy[i]+0.5*diff_Z[i]*mean_Vz[i]
         dirCos.append(PosDotVel / (0.5*magPosDifference[i] * magVelMean[i]))
     
-    axDirCos = fig.add_subplot(gs[3,4:8],sharex = axDiffVy)
+    axDirCos = fig.add_subplot(gs1[2,1],sharex = axDiffVy)
     axDirCos.plot(orbit0.t,dirCos)    
     axDirCos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDirCos.set_title("Direction Cosine")
@@ -200,21 +203,21 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     diffPE = (orbit1.potential_energy()-orbit0.potential_energy()).to(u.km**2/u.s**2)
     diffHamiltonian = (orbit1.energy()-orbit0.energy()).to(u.km**2/u.s**2)
     
-    axKE = fig.add_subplot(gs[4,0:4])
+    axKE = fig.add_subplot(gs1[3,0])
     axKE.plot(orbit0.t,diffKE)
     axKE.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axKE.set_title("Difference in Kinetic Energy")
     axKE.set_ylabel(r"Energy ($\text{km}^2 \text{s}^{-2}$)")
     axKE.set_xlabel("t (Myr)")
     
-    axPE = fig.add_subplot(gs[4,4:8],sharey = axKE)
+    axPE = fig.add_subplot(gs1[3,1],sharey = axKE)
     axPE.plot(orbit0.t,diffPE)
     axPE.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axPE.set_title("Difference in Potential Energy")
     axPE.set_xlabel("t (Myr)")
     axPE.tick_params('y',labelleft = False)
     
-    axHamiltonian = fig.add_subplot(gs[4,8:12])
+    axHamiltonian = fig.add_subplot(gs1[3,2])
     axHamiltonian.plot(orbit0.t,diffHamiltonian)
     axHamiltonian.set_title("Difference in Total Energy")
     axHamiltonian.set_xlabel("t (Myr)")
