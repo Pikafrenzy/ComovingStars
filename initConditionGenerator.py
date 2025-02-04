@@ -24,17 +24,16 @@ import gala.units as gu
 # notes the start time of running the program to determine how long it ran for
 startTime = time.time()
 
-# a seeded RNG to ensure consistent data when running multiple times
-# TODO: separate out rng to several different rng generators
-# such that increasing star pair count doesn't give different star pairs
-rng = np.random.default_rng(137) 
-
+# seeded RNGs to ensure consistent data when running multiple times
+# two RNGs ensures adding more stars doesn't change the original stars
+centrePosRNG = np.random.default_rng(137) 
+differenceRNG = np.random.default_rng(1836)
 
 starCentres = []
 starPairCount = 12
 
 # toggle for whether graphs are saved automatically to computer
-saveGraphs = True
+saveGraphs = False
 
 # taking a position,
 # calculates the cross product of the unit vector in the z axis the normalised position vector
@@ -53,17 +52,17 @@ def generateVelocity(posx,posy,posz):
 # generates an array of points in phase space which represent the centres of a pair of stars
 for i in range(starPairCount):
     
-    posR = rng.uniform(0.0,20.0)
-    posTheta = rng.uniform(0.0,2*np.pi)
+    posR = centrePosRNG.uniform(0.0,20.0)
+    posTheta = centrePosRNG.uniform(0.0,2*np.pi)
     
     posx = posR*np.cos(posTheta)*u.kpc
     posy = posR*np.sin(posTheta)*u.kpc
     posz = 0.0*u.kpc
     
     velMean = generateVelocity(posx.to_value(),posy.to_value(),posz.to_value())
-    vx = rng.normal(velMean[0],30)*u.km/u.s
-    vy = rng.normal(velMean[1],30)*u.km/u.s
-    vz = rng.normal(velMean[2],30)*u.km/u.s
+    vx = centrePosRNG.normal(velMean[0],30)*u.km/u.s
+    vy = centrePosRNG.normal(velMean[1],30)*u.km/u.s
+    vz = centrePosRNG.normal(velMean[2],30)*u.km/u.s
     
     starCentres.append(Star(posx,posy,posz,vx,vy,vz))
 
@@ -131,27 +130,29 @@ if(saveGraphs):
 # using a multidimensional Gaussian
 def pairGenerator(starCentre):
     
-    xDiff = rng.normal(0,0.001)
+
+    
+    xDiff = differenceRNG.normal(0,0.001)
     x1 = starCentre.get_x().to_value() + xDiff
     x2 = starCentre.get_x().to_value() - xDiff
     
-    yDiff = rng.normal(0,0.001)
+    yDiff = differenceRNG.normal(0,0.001)
     y1 = starCentre.get_y().to_value() + yDiff
     y2 = starCentre.get_y().to_value() - yDiff
     
-    zDiff = rng.normal(0,0.001)
+    zDiff = differenceRNG.normal(0,0.001)
     z1 = starCentre.get_z().to_value() + zDiff
     z2 = starCentre.get_z().to_value() - zDiff
     
-    vxDiff = rng.normal(0,0.1)
+    vxDiff = differenceRNG.normal(0,0.1)
     vx1 = starCentre.get_Vx().to_value() + vxDiff
     vx2 = starCentre.get_Vx().to_value() - vxDiff
     
-    vyDiff = rng.normal(0,0.1)
+    vyDiff = differenceRNG.normal(0,0.1)
     vy1 = starCentre.get_Vy().to_value() + vyDiff
     vy2 = starCentre.get_Vy().to_value() - vyDiff
     
-    vzDiff = rng.normal(0,0.1)
+    vzDiff = differenceRNG.normal(0,0.1)
     vz1 = starCentre.get_Vz().to_value() + vzDiff
     vz2 = starCentre.get_Vz().to_value() - vzDiff
     
