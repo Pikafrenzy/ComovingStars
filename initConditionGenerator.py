@@ -22,7 +22,8 @@ import gala.potential as gp
 import gala.units as gu
 
 startTime = time.time()
-rng = np.random.default_rng(137)
+rng = np.random.default_rng(137) 
+#TODO: separate out rng to several different rng generators, such that increasing star pair count doesn't give different star pairs
 
 starCentres = []
 starPairCount = 12
