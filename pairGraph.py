@@ -60,7 +60,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axY.set_box_aspect(1)
     axY.axis('equal')
     axY.set_title("Y against X")
-    axY.set_ylabel("y (kpc), z (kpc)")
+    axY.set_ylabel("y (kpc)")
     axY.set_xlabel("x (kpc)")
     
     fig.legend(loc = 'outside upper left')
@@ -69,7 +69,6 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axZ.plot(orbit1.pos.x,orbit1.pos.z,label=makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
     axZ.set_box_aspect(1)
     axZ.axis('equal')
-    axZ.legend(fontsize=10, bbox_to_anchor=(1,1.3))
     axZ.set_ylabel("z (kpc)")
     axZ.set_xlabel("x (kpc)")
     axZ.set_title("Z against X")
