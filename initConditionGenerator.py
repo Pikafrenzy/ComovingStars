@@ -21,15 +21,24 @@ import gala.dynamics as gd
 import gala.potential as gp
 import gala.units as gu
 
+# notes the start time of running the program to determine how long it ran for
 startTime = time.time()
+
+# a seeded RNG to ensure consistent data when running multiple times
+# TODO: separate out rng to several different rng generators
+# such that increasing star pair count doesn't give different star pairs
 rng = np.random.default_rng(137) 
-#TODO: separate out rng to several different rng generators, such that increasing star pair count doesn't give different star pairs
+
 
 starCentres = []
 starPairCount = 12
 
-#toggle for whether graphs are saved automatically to computer
+# toggle for whether graphs are saved automatically to computer
 saveGraphs = False
+
+# taking a position,
+# calculates the cross product of the unit vector in the z axis the normalised position vector
+# and returns it with a magnitude of 220
 
 def generateVelocity(posx,posy,posz):
     magPos = np.sqrt(posx**2+posy**2+posz**2)
@@ -41,7 +50,7 @@ def generateVelocity(posx,posy,posz):
     vel = np.cross(zHat,normPosVec)*220
     return vel
 
-
+# generates an array of points in phase space which represent the centres of a pair of stars
 for i in range(starPairCount):
     
     posR = rng.uniform(0.0,20.0)
@@ -58,13 +67,14 @@ for i in range(starPairCount):
     
     starCentres.append(Star(posx,posy,posz,vx,vy,vz))
 
-#arrays for the centre of each pair
+# creating and populating arrays containing the centre of each pair
 starsCentreX = []
 starsCentreY = []
 starsCentreZ = []
 starsCentreVx = []
 starsCentreVy = []
 starsCentreVz = []
+
 for i,star in enumerate(starCentres):
     starsCentreX.append(star.get_x().to_value())
     starsCentreY.append(star.get_y().to_value())
@@ -75,6 +85,7 @@ for i,star in enumerate(starCentres):
     
 plt.rcParams.update({'font.size': 25})
 
+# plotting the distribution of the centre of star pairs as four plots in one figure
 fig1 = plt.figure(figsize = (20,20),layout = 'constrained')
 
 axCentreXY = plt.subplot(221)
@@ -105,6 +116,7 @@ axCentreVelXZ.set_ylabel("$v_z$ (km/s)")
 axCentreVelXZ.set_xlabel("$v_x$ (km/s)")
 axCentreVelXZ.tick_params('both',length = 15)
 
+# creates the directory for all the plots, and saves the above plot to it as a png file
 dirPath = "../Plots/"+datetime.now().strftime("%Y%m%d_%H%M%S")
 if(saveGraphs): 
    os.mkdir(dirPath)
@@ -113,6 +125,9 @@ if(saveGraphs):
     plt.savefig(centreDistributionPath)
     
     
+# given a point in phase space
+# generates two points equally distanced from the point in all 6 dimensions of phase space
+# using a multidimensional Gaussian
 def pairGenerator(starCentre):
     
     xDiff = rng.normal(0,0.001)
@@ -148,6 +163,7 @@ for star in starCentres:
     starPair = pairGenerator(star)
     starPairs.append(starPair)
 
+# creating and populating arrays containing the locations of each pair and their differences in phase space
 starX = []
 starY = []
 starZ = []
@@ -162,7 +178,7 @@ diff_Vx = []
 diff_Vy = []
 diff_Vz = []
 
-for j,starPair in enumerate(starPairs):
+for (j,starPair) in enumerate(starPairs):
     for (i,star) in enumerate(starPair):
         starX.append(starPair[i].get_x().to_value())
         starY.append(starPair[i].get_y().to_value())
@@ -176,9 +192,11 @@ for j,starPair in enumerate(starPairs):
     diff_Vx.append((starPair[1].get_Vx()-starPair[0].get_Vx()).to_value())
     diff_Vy.append((starPair[1].get_Vy()-starPair[0].get_Vy()).to_value())
     diff_Vz.append((starPair[1].get_Vz()-starPair[0].get_Vz()).to_value())
+    # graphing each pair of stars
     pairGraph.pairGraph(j,starPair[0],starPair[1],saveGraphs,dirPath)
     
-plt.rcParams.update({'font.size': 25})
+    
+# plotting the displacement between the stars as four plots in one figure 
 
 fig2 = plt.figure(figsize = (20,20),layout = 'constrained')
 
@@ -210,10 +228,13 @@ axPairVelXZ.set_ylabel("z (km/s)")
 axPairVelXZ.set_xlabel("x (km/s)")
 axPairVelXZ.tick_params('both',length = 15)
 
+# saving the plot as a png to the same directory as before
 diffPath = dirPath+"/Difference_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
 if(saveGraphs): 
     plt.savefig(diffPath)
   
+# plotting the distribution of the stars as four plots in one figure     
+
 fig3 = plt.figure(figsize = (20,20),layout = 'constrained')
 
 axPairXY = plt.subplot(221)
@@ -244,10 +265,11 @@ axPairVelXZ.set_ylabel("$v_z$ (km/s)")
 axPairVelXZ.set_xlabel("$v_x$ (km/s)")
 axPairVelXZ.tick_params('both',length = 15)
 
+# saving the plot as a png to the same directory as before
 starDistributionPath = dirPath+"/StarDistribution_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
 if(saveGraphs): 
     plt.savefig(starDistributionPath)
     
+# outputs the time it took the program to run
 endTime = time.time()
-
 print("This took " + str(endTime-startTime) + " seconds")
