@@ -34,7 +34,7 @@ starCentres = []
 starPairCount = 12
 
 # toggle for whether graphs are saved automatically to computer
-saveGraphs = False
+saveGraphs = True
 
 # taking a position,
 # calculates the cross product of the unit vector in the z axis the normalised position vector
@@ -118,7 +118,7 @@ axCentreVelXZ.tick_params('both',length = 15)
 
 # creates the directory for all the plots
 # and saves the above plot to it as a png file
-dirPath = "../Plots/"+datetime.now().strftime("%Y%m%d_%H%M%S")
+dirPath = "Plots/"+datetime.now().strftime("%Y%m%d_%H%M%S")
 if(saveGraphs): 
    os.mkdir(dirPath)
 centreDistributionPath = dirPath+"/CentreDistribution_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
@@ -198,6 +198,7 @@ for (j,starPair) in enumerate(starPairs):
     
     
 # plotting the displacement between the stars as four plots in one figure 
+plt.rcParams.update({'font.size': 25})
 
 fig2 = plt.figure(figsize = (20,20),layout = 'constrained')
 
