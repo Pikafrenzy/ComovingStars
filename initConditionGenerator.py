@@ -116,7 +116,8 @@ axCentreVelXZ.set_ylabel("$v_z$ (km/s)")
 axCentreVelXZ.set_xlabel("$v_x$ (km/s)")
 axCentreVelXZ.tick_params('both',length = 15)
 
-# creates the directory for all the plots, and saves the above plot to it as a png file
+# creates the directory for all the plots
+# and saves the above plot to it as a png file
 dirPath = "../Plots/"+datetime.now().strftime("%Y%m%d_%H%M%S")
 if(saveGraphs): 
    os.mkdir(dirPath)
