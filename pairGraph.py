@@ -19,6 +19,7 @@ import gala.potential as gp
 import gala.units as gu
 
 #initial variables
+# initial variables
 mw = gp.MilkyWayPotential()
 T = 1000*u.Myr
 def trunc3dp(number):
@@ -51,6 +52,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axVelY = fig.add_subplot(gs[0,6:9])
     axVelZ = fig.add_subplot(gs[0,9:12])
     
+    
     axY.plot(orbit0.pos.x,orbit0.pos.y,label=makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
     axY.plot(orbit1.pos.x,orbit1.pos.y,label=makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
     axY.set_box_aspect(1)
@@ -58,6 +60,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axY.set_title("Y against X")
     axY.set_ylabel("y (kpc), z (kpc)")
     axY.set_xlabel("x (kpc)")
+    
     
     axZ.plot(orbit0.pos.x,orbit0.pos.z,label=makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
     axZ.plot(orbit1.pos.x,orbit1.pos.z,label=makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
@@ -95,6 +98,8 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
         
     #position plots
     axDiffX = fig.add_subplot(gs[1,0:4])
+    
+    # position plots
     axDiffX.plot(orbit0.t,diff_X)
     axDiffX.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffX.set_title("Difference in x")
@@ -123,8 +128,8 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDiffZ.set_title("Difference in z")
     axDiffZ.tick_params('x',labelbottom = False)
     
-    #velocity plots
     axDiffVx = fig.add_subplot(gs[2,0:4],sharex=axDiffX)
+    # velocity plots
     axDiffVx.plot(orbit0.t,diff_Vx)
     axDiffVx.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
     axDiffVx.set_title("Difference in $v_x$")
@@ -153,6 +158,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDiffVz.set_title("Difference in $v_z$")
     axDiffVz.tick_params('x',labelbottom = False)
     
+    # magnitudes and direction cosine plots
     magPosDifference = np.sqrt(diff_X**2+diff_Y**2+diff_Z**2)
     
     axDiffMagPos = fig.add_subplot(gs[3,0:4],sharex = axDiffVx)
@@ -189,6 +195,7 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axDirCos.set_ylabel(r"$\frac{x \cdot \overline{v}}{|x||\overline{v}|}$")
     axDirCos.tick_params('x',labelbottom = False)
     
+    # energy plots
     diffKE = (orbit1.kinetic_energy()-orbit0.kinetic_energy()).to(u.km**2/u.s**2)
     diffPE = (orbit1.potential_energy()-orbit0.potential_energy()).to(u.km**2/u.s**2)
     diffHamiltonian = (orbit1.energy()-orbit0.energy()).to(u.km**2/u.s**2)
@@ -211,8 +218,10 @@ def pairGraph(ID,star0, star1, saveGraphs, dirPath):
     axHamiltonian.plot(orbit0.t,diffHamiltonian)
     axHamiltonian.set_title("Difference in Total Energy")
     axHamiltonian.set_xlabel("t (Myr)")
-    
+
+    # saving graphs
     pathPair = dirPath+"/Star_Pair_"+str(ID)+".png"
+    
     if(saveGraphs): 
         plt.savefig(pathPair)   
     else:
