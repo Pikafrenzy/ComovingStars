@@ -18,7 +18,6 @@ import gala.dynamics as gd
 import gala.potential as gp
 import gala.units as gu
 
-#initial variables
 # initial variables
 mw = gp.MilkyWayPotential()
 T = 1000*u.Myr
