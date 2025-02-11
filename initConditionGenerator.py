@@ -30,7 +30,9 @@ centrePosRNG = np.random.default_rng(137)
 differenceRNG = np.random.default_rng(1836)
 
 starCentres = []
-starPairCount = 12
+starPairCount = 10000
+
+mw = gp.MilkyWayPotential()
 
 # toggle for whether graphs are saved automatically to computer
 saveGraphs = False
@@ -277,6 +279,62 @@ starDistributionPath = dirPath+"/StarDistribution_"+datetime.now().strftime("%Y%
 if(saveGraphs): 
     plt.savefig(starDistributionPath)
     
+# calculating the energy difference between two stars at the starting condition
+def energyDifference(star0,star1):
+    # converting the Star objects into PhaseSpacePosition objects
+    w0 = gd.PhaseSpacePosition(pos = star0.get_Pos(),vel = star0.get_Vel())
+    w1 = gd.PhaseSpacePosition(pos = star1.get_Pos(),vel = star1.get_Vel())
+    
+    # calculating the energy for each position in the Milky Way Potential
+    star0PE = mw.energy(w0)
+    star0KE = w0.kinetic_energy()
+    star0TotalEnergy = star0PE+star0KE
+    
+    star1PE = mw.energy(w1)
+    star1KE = w1.kinetic_energy()
+    star1TotalEnergy = star1PE+star1KE
+    
+    # I don't know why astropy.Quantity's to_value() returns an array but it does
+    return (star1TotalEnergy-star0TotalEnergy).to(u.km**2/u.s**2).to_value()[0]
+   
+# calculating the difference in Lz between two stars at the starting condition
+def LzDifference(star0,star1):
+    # converting the Star objects into PhaseSpacePosition objects
+    w0 = gd.PhaseSpacePosition(pos = star0.get_Pos(),vel = star0.get_Vel())
+    w1 = gd.PhaseSpacePosition(pos = star1.get_Pos(),vel = star1.get_Vel())
+
+    # calculating the angular momentum in z
+    Lz0 = w0.angular_momentum()[2]
+    Lz1 = w1.angular_momentum()[2]
+    return (Lz1-Lz0).to_value(u.kpc**2/u.Myr)
+ 
+energyDifferences = []
+LzDifferences = []
+for starPair in starPairs:
+    energyDifferences.append(energyDifference(starPair[0],starPair[1]))
+    LzDifferences.append(LzDifference(starPair[0],starPair[1]))
+
+
+plt.rcParams.update({'font.size': 10})
+fig4 = plt.figure(layout = 'constrained')
+
+axDeltaE = plt.subplot(121)
+axDeltaE.hist(energyDifferences,bins = "auto")
+axDeltaE.set_xlim(-500,500)
+axDeltaE.set_title("Initial Energy Difference")
+axDeltaE.set_ylabel("Count")
+axDeltaE.set_xlabel(r"Energy $(\text{km}^2/\text{s}^2)$")
+
+axDeltaLz = plt.subplot(122,sharey = axDeltaE)
+axDeltaLz.hist(LzDifferences,bins = "auto")
+axDeltaLz.set_title("Initial Lz Difference")
+axDeltaLz.set_xlabel(r"Angular Momentum $(\text{kpc}^2/\text{Myr})$")
+
+# saving the plot as a png to the same directory as before
+invariantsDistributionPath = dirPath+"/InvariantsDistribution_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
+if(saveGraphs): 
+    plt.savefig(invariantsDistributionPath)
+
 # outputs the time it took the program to run
 endTime = time.time()
 print("This took " + str(endTime-startTime) + " seconds")
