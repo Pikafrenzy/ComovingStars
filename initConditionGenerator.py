@@ -35,6 +35,9 @@ starPairCount = 12
 # toggle for whether graphs are saved automatically to computer
 saveGraphs = False
 
+# toggle for whether stars are integrated
+integrateOrbits = False
+
 # taking a position,
 # calculates the cross product of the unit vector in the z axis the normalised position vector
 # and returns it with a magnitude of 220
@@ -195,7 +198,8 @@ for (j,starPair) in enumerate(starPairs):
     diff_Vy.append((starPair[1].get_Vy()-starPair[0].get_Vy()).to_value())
     diff_Vz.append((starPair[1].get_Vz()-starPair[0].get_Vz()).to_value())
     # graphing each pair of stars
-    pairGraph.pairGraph(j,starPair[0],starPair[1],saveGraphs,dirPath)
+    if integrateOrbits:
+        pairGraph.pairGraph(j,starPair[0],starPair[1],saveGraphs,dirPath)
     
     
 # plotting the displacement between the stars as four plots in one figure 
