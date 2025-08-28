@@ -202,7 +202,8 @@ for (j,starPair) in enumerate(starPairs):
     # graphing each pair of stars
     if integrateOrbits:
         pairGraph.pairGraph(j,starPair[0],starPair[1],saveGraphs,dirPath)
-    
+    if j < 12:
+        pairGraph.pairGraph(j,starPair[0],starPair[1],saveGraphs,dirPath)
     
 # plotting the displacement between the stars as four plots in one figure 
 plt.rcParams.update({'font.size': 25})
@@ -324,11 +325,13 @@ axDeltaE.set_xlim(-500,500)
 axDeltaE.set_title("Initial Energy Difference")
 axDeltaE.set_ylabel("Count")
 axDeltaE.set_xlabel(r"Energy $(\text{km}^2/\text{s}^2)$")
+axDeltaE.plot(energyDifferences[0:12],10*np.arange(1,13),color = 'tab:orange',marker = '.',linestyle = 'None')
 
 axDeltaLz = plt.subplot(122,sharey = axDeltaE)
 axDeltaLz.hist(LzDifferences,bins = "auto")
 axDeltaLz.set_title("Initial Lz Difference")
 axDeltaLz.set_xlabel(r"Angular Momentum $(\text{kpc}^2/\text{Myr})$")
+axDeltaLz.plot(LzDifferences[0:12],10*np.arange(1,13),color = 'tab:orange',marker = '.',linestyle = 'None')
 
 # saving the plot as a png to the same directory as before
 invariantsDistributionPath = dirPath+"/InvariantsDistribution_"+datetime.now().strftime("%Y%m%d_%H%M%S")+".png"
