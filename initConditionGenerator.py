@@ -125,7 +125,8 @@ def starCentresGraph(starCoords,saveGraphs,dirTime):
     # saves graph
     if(saveGraphs): 
         dirPath = dirCheck(saveGraphs, dirTime)
-        centreDistributionPath = dirPath+"/CentreDistribution_"+dirTime+".png"
+        fileName = "CentreDistribution_"+dirTime+".png"
+        centreDistributionPath = dirPath/fileName
         plt.savefig(centreDistributionPath)
 
 # given a point in phase space
@@ -240,7 +241,8 @@ def starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, graphLimit, di
     # saving the plot as a png to the same directory as before
     if(saveGraphs): 
         dirPath = dirCheck(saveGraphs, dirTime)
-        diffPath = dirPath+"/Difference_"+dirTime+".png"
+        fileName = "Difference_"+dirTime+".png"
+        diffPath = dirPath/fileName
         plt.savefig(diffPath)
   
     # plotting the distribution of the stars as four plots in one figure     
@@ -277,7 +279,8 @@ def starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, graphLimit, di
     
     # saving the plot as a png to the same directory as before
     if(saveGraphs): 
-        starDistributionPath = dirPath+"/StarDistribution_"+dirTime+".png"
+        fileName = "StarDistribution_"+dirTime+".png"
+        starDistributionPath = dirPath/fileName
         plt.savefig(starDistributionPath)
 
 # calculating the energy difference between two stars at the starting condition
@@ -339,6 +342,7 @@ def invariantGraphs(energyDifferences, LzDifferences, saveGraphs, dirTime):
     # saving the plot as a png to the same directory as before
     if(saveGraphs): 
         dirPath = dirCheck(saveGraphs, dirTime)
-        invariantsDistributionPath = dirPath+"/InvariantsDistribution_"+dirTime+".png"
+        fileName = "InvariantsDistribution_"+dirTime+".png"
+        invariantsDistributionPath = dirPath/fileName
         plt.savefig(invariantsDistributionPath)
 
