@@ -16,8 +16,8 @@ startTime = time.time()
 
 # toggle for whether graphs are saved automatically to computer
 saveGraphs = False
-# toggle for whether stars are integrated
-integrateOrbits = False
+# toggle for whether pairs are graphed
+graphIndividualPairs = False
 
 # saves start time for directories
 dirTime = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -37,7 +37,7 @@ ICG.starCentresGraph(starCoords, saveGraphs,dirTime)
 
 # pair graphs
 starPairs = ICG.starPairsCreate(differenceRNG, starCentres)
-ICG.starPairGraphs(starPairs,T, saveGraphs,integrateOrbits, pairGraphLimit, dirTime)
+ICG.starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, pairGraphLimit, dirTime)
 
 # graphing invariants of initial positions
 ICG.invariantGraphs(*ICG.invariantArrays(starPairs),saveGraphs, dirTime)

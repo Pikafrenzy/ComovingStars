@@ -6,7 +6,7 @@ Created on Tue Dec 31 14:56:43 2024
 @author: ambroselo
 """
 
-import astropy.coordinates as coord
+# import astropy.coordinates as coord
 import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,7 +19,7 @@ from pathlib import Path
 # Gala
 import gala.dynamics as gd
 import gala.potential as gp
-import gala.units as gu
+# import gala.units as gu
 
 mw = gp.MilkyWayPotential()
 
@@ -49,7 +49,7 @@ def generateVelocity(posx,posy,posz):
 
 
 # generates an array of points in phase space which represent the centres of a pair of stars
-# returns a namedtuple of type PosVel with 6 arrays inside and array of star objects
+# returns an array of star objects and a namedtuple of type PosVel with 6 arrays inside 
 def generateStarCentres(centreCount, rng):
     starCentres = []
     for i in range(centreCount):
@@ -169,7 +169,7 @@ def starPairsCreate(differenceRNG, starCentres):
         starPairs.append(starPair)
     return starPairs
 
-def starPairGraphs(starPairs,T, saveGraphs, integrateOrbits, graphLimit, dirTime):
+def starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, graphLimit, dirTime):
     # creating and populating arrays containing the locations of each pair and their differences in phase space
     starX = []
     starY = []
@@ -200,7 +200,7 @@ def starPairGraphs(starPairs,T, saveGraphs, integrateOrbits, graphLimit, dirTime
         diff_Vy.append((starPair[1].get_Vy()-starPair[0].get_Vy()).to_value())
         diff_Vz.append((starPair[1].get_Vz()-starPair[0].get_Vz()).to_value())
         # graphing each pair of stars
-        if integrateOrbits and j < graphLimit:
+        if graphIndividualPairs and j < graphLimit:
            dirPath = dirCheck(saveGraphs, dirTime)
            pairGraph.pairGraph(j,starPair[0],starPair[1],T,saveGraphs,dirPath)
 

@@ -6,17 +6,18 @@ Created on Mon Oct 21 15:46:15 2024
 @author: ambroselo
 """
 
-import astropy.coordinates as coord
+# import astropy.coordinates as coord
 import astropy.units as u
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
-import os
+# from pathlib import Path
+# import os
 
 # Gala
 import gala.dynamics as gd
 import gala.potential as gp
-import gala.units as gu
+# import gala.units as gu
 
 # initial variables
 mw = gp.MilkyWayPotential()
@@ -42,10 +43,7 @@ def checkSharing(x1, x2, margin):
     share = diff_min.to_value() <= margin and diff_max.to_value() <= margin
     return share
 
-# given two phase space positions
-# integrates them using the Milky Way Potential in Gala from Bovy (2015)
-# and graphs a series of variables
-def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
+def pairIntegrate(star0, star1, T):
     # creating the PhaseSpacePosition objects from position and velocity vectors
     w0 = gd.PhaseSpacePosition(pos = star0.get_Pos(),vel = star0.get_Vel())
     w1 = gd.PhaseSpacePosition(pos = star1.get_Pos(),vel = star1.get_Vel())
@@ -53,6 +51,65 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     # integrating orbits
     orbit0 = mw.integrate_orbit(w0, dt = 1*u.Myr, t1=0, t2 = T)
     orbit1 = mw.integrate_orbit(w1, dt = 1*u.Myr, t1=0, t2 = T)
+    
+    return orbit0, orbit1
+
+def orbitCalcs(orbit0, orbit1):
+    # difference in each dimension of phase space positions
+    diff_X = orbit1.pos.x-orbit0.pos.x
+    diff_Y = orbit1.pos.y-orbit0.pos.y
+    diff_Z = orbit1.pos.z-orbit0.pos.z
+    diff_Vx = (orbit1.v_x-orbit0.v_x).to(u.km/u.s)
+    diff_Vy = (orbit1.v_y-orbit0.v_y).to(u.km/u.s)
+    diff_Vz = (orbit1.v_z-orbit0.v_z).to(u.km/u.s)
+    
+    # magnitude of the position displacement between the stars
+    magPosDifference = np.sqrt(diff_X**2+diff_Y**2+diff_Z**2)
+    
+    # magnitude of the velocity displacement between the stars
+    magVelDifference = np.sqrt(diff_Vx**2+diff_Vy**2+diff_Vz**2)
+    
+    dirCos = getDirCos(orbit0,orbit1)
+    # difference in energy (kinetic, potential, total)
+    diffKE = (orbit1.kinetic_energy()-orbit0.kinetic_energy()).to(u.km**2/u.s**2)
+    diffPE = (orbit1.potential_energy()-orbit0.potential_energy()).to(u.km**2/u.s**2)
+    diffHamiltonian = (orbit1.energy()-orbit0.energy()).to(u.km**2/u.s**2)
+    
+    return (diff_X, diff_Y, diff_Z, diff_Vx, diff_Vy, diff_Vz, 
+            magPosDifference, magVelDifference, dirCos, diffKE,
+            diffPE, diffHamiltonian)
+
+def getDirCos(orbit0, orbit1):
+    # difference in each dimension of phase space positions
+    diff_X = orbit1.pos.x-orbit0.pos.x
+    diff_Y = orbit1.pos.y-orbit0.pos.y
+    diff_Z = orbit1.pos.z-orbit0.pos.z
+    
+    # calculating the direction cosine
+    mean_Vx = 0.5*(orbit1.v_x+orbit0.v_x).to(u.km/u.s)
+    mean_Vy = 0.5*(orbit1.v_y+orbit0.v_y).to(u.km/u.s)
+    mean_Vz = 0.5*(orbit1.v_z+orbit0.v_z).to(u.km/u.s)
+    
+    # magnitude of the position displacement between the stars
+    magPosDifference = np.sqrt(diff_X**2+diff_Y**2+diff_Z**2)
+    
+    magVelMean = np.sqrt(mean_Vx**2+mean_Vy**2+mean_Vz**2)
+    
+    dirCos = []
+    for (i, pos) in enumerate(diff_X):
+        PosDotVel = 0.5*diff_X[i]*mean_Vx[i]+0.5*diff_Y[i]*mean_Vy[i]+0.5*diff_Z[i]*mean_Vz[i]
+        dirCos.append(PosDotVel / (0.5*magPosDifference[i] * magVelMean[i]))
+    return dirCos
+
+# given two phase space positions
+# integrates them using the Milky Way Potential in Gala from Bovy (2015)
+# and graphs a series of variables
+def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
+
+    orbit0, orbit1 = pairIntegrate(star0, star1, T)
+    (diff_X, diff_Y, diff_Z, diff_Vx, diff_Vy, diff_Vz,
+     magPosDifference, magVelDifference, dirCos, diffKE,
+     diffPE, diffHamiltonian) = orbitCalcs(orbit0, orbit1)
     
     # creating the initial figure and subfigures
     plt.rcParams.update({'font.size': 10})
@@ -68,9 +125,12 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     axVelY = subfigs[0].add_subplot(gs0[2])
     axVelZ = subfigs[0].add_subplot(gs0[3],sharey = axVelY)
     
+    star0_label = makeLabel(star0.get_Pos(), star0.get_Vel())
+    star1_label = makeLabel(star1.get_Pos(), star1.get_Vel())
+    
     # plotting the phase space positions of both stars over the integrated period
-    axY.plot(orbit0.pos.x,orbit0.pos.y,label=makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
-    axY.plot(orbit1.pos.x,orbit1.pos.y,label=makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
+    axY.plot(orbit0.pos.x,orbit0.pos.y,label=star0_label,linewidth = 0.3, color = 'r')
+    axY.plot(orbit1.pos.x,orbit1.pos.y,label=star1_label,linewidth = 0.3, color = 'b')
     axY.set_box_aspect(1)
     axY.axis('equal')
     axY.set_title("Y against X")
@@ -79,8 +139,8 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     
     fig.legend(loc = 'outside upper left')
     
-    axZ.plot(orbit0.pos.x,orbit0.pos.z,label=makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
-    axZ.plot(orbit1.pos.x,orbit1.pos.z,label=makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
+    axZ.plot(orbit0.pos.x,orbit0.pos.z,linewidth = 0.3, color = 'r')
+    axZ.plot(orbit1.pos.x,orbit1.pos.z,linewidth = 0.3, color = 'b')
     axZ.set_box_aspect(1)
     axZ.axis('equal')
     axZ.set_ylabel("z (kpc)")
@@ -88,30 +148,22 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     axZ.set_title("Z against X")
     axZ.tick_params('y',labelleft = False)
 
-    axVelY.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_y.to(u.km/u.s),label=makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
-    axVelY.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_y.to(u.km/u.s),label=makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
+    axVelY.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_y.to(u.km/u.s),linewidth = 0.3, color = 'r')
+    axVelY.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_y.to(u.km/u.s),linewidth = 0.3, color = 'b')
     axVelY.set_box_aspect(1)
     axVelY.axis('equal')
     axVelY.set_title("$v_y$ against $v_x$")
     axVelY.set_ylabel("$v_y$ (km/s)")
     axVelY.set_xlabel("$v_x$ (km/s)")
     
-    axVelZ.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_z.to(u.km/u.s),label=makeLabel(star0.get_Pos(), star0.get_Vel()),linewidth = 0.3, color = 'r')
-    axVelZ.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_z.to(u.km/u.s),label=makeLabel(star1.get_Pos(), star1.get_Vel()),linewidth = 0.3, color = 'b')
+    axVelZ.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_z.to(u.km/u.s),linewidth = 0.3, color = 'r')
+    axVelZ.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_z.to(u.km/u.s),linewidth = 0.3, color = 'b')
     axVelZ.set_box_aspect(1)
     axVelZ.axis('equal')
     axVelZ.set_title("$v_z$ against $v_x$")
     axVelZ.set_ylabel("$v_z$ (km/s)")
     axVelZ.set_xlabel("$v_x$ (km/s)")
     axVelZ.tick_params('y',labelleft = False)
-    
-    # difference in each dimension of phase space positions
-    diff_X = orbit1.pos.x-orbit0.pos.x
-    diff_Y = orbit1.pos.y-orbit0.pos.y
-    diff_Z = orbit1.pos.z-orbit0.pos.z
-    diff_Vx = (orbit1.v_x-orbit0.v_x).to(u.km/u.s)
-    diff_Vy = (orbit1.v_y-orbit0.v_y).to(u.km/u.s)
-    diff_Vz = (orbit1.v_z-orbit0.v_z).to(u.km/u.s)
     
     # position plots
     axDiffX = subfigs[1].add_subplot(gs1[0,0])
@@ -173,9 +225,6 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     axDiffVz.set_title("Difference in $v_z$")
     axDiffVz.tick_params('x',labelbottom = False)
     
-    # magnitude of the position displacement between the stars
-    magPosDifference = np.sqrt(diff_X**2+diff_Y**2+diff_Z**2)
-    
     # plotting the position displacement magnitude
     axDiffMagPos = fig.add_subplot(gs1[2,0],sharex = axDiffVx)
     axDiffMagPos.plot(orbit0.t,magPosDifference)
@@ -183,9 +232,6 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     axDiffMagPos.set_title("Magnitude of difference in position")
     axDiffMagPos.set_ylabel(r"$|\vec x|$ (kpc)")
     axDiffMagPos.tick_params('x',labelbottom = False)
-    
-    # magnitude of the velocity displacement between the stars
-    magVelDifference = np.sqrt(diff_Vx**2+diff_Vy**2+diff_Vz**2)
     
     # plotting the velocity displacement magnitude
     axDiffMagVel = fig.add_subplot(gs1[2,2],sharex = axDiffVz)
@@ -195,18 +241,6 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     axDiffMagVel.set_ylabel(r"$|\vec v|$ (km/s)")
     axDiffMagVel.tick_params('x',labelbottom = False)
     
-    # calculating the direction cosine
-    mean_Vx = 0.5*(orbit1.v_x+orbit0.v_x).to(u.km/u.s)
-    mean_Vy = 0.5*(orbit1.v_y+orbit0.v_y).to(u.km/u.s)
-    mean_Vz = 0.5*(orbit1.v_z+orbit0.v_z).to(u.km/u.s)
-    
-    magVelMean = np.sqrt(mean_Vx**2+mean_Vy**2+mean_Vz**2)
-    
-    dirCos = []
-    for (i, pos) in enumerate(diff_X):
-        PosDotVel = 0.5*diff_X[i]*mean_Vx[i]+0.5*diff_Y[i]*mean_Vy[i]+0.5*diff_Z[i]*mean_Vz[i]
-        dirCos.append(PosDotVel / (0.5*magPosDifference[i] * magVelMean[i]))
-    
     # plotting the direction cosine
     axDirCos = fig.add_subplot(gs1[2,1],sharex = axDiffVy)
     axDirCos.plot(orbit0.t,dirCos)    
@@ -214,11 +248,6 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     axDirCos.set_title("Direction Cosine")
     axDirCos.set_ylabel(r"$\frac{x \cdot \overline{v}}{|x||\overline{v}|}$")
     axDirCos.tick_params('x',labelbottom = False)
-    
-    # difference in energy (kinetic, potential, total)
-    diffKE = (orbit1.kinetic_energy()-orbit0.kinetic_energy()).to(u.km**2/u.s**2)
-    diffPE = (orbit1.potential_energy()-orbit0.potential_energy()).to(u.km**2/u.s**2)
-    diffHamiltonian = (orbit1.energy()-orbit0.energy()).to(u.km**2/u.s**2)
     
     # energy plots
     axKE = fig.add_subplot(gs1[3,0])
@@ -241,13 +270,13 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     axHamiltonian.set_xlabel("t (Myr)")
 
     # saving graphs
-    pathPair = dirPath+"/Star_Pair_"+str(ID)+".png"
+    fileName = "Star_Pair_"+str(ID)+".png"
+    pathPair = dirPath/fileName
     
     if(saveGraphs): 
         plt.savefig(pathPair)   
     else:
         plt.show()
     plt.close(fig)
-    
     
     
