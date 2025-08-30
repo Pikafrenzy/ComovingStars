@@ -9,6 +9,7 @@ import numpy as np
 from datetime import datetime
 import time
 import initConditionGenerator as ICG
+import astropy.units as u
 
 # notes the start time of running the program to determine how long it ran for
 startTime = time.time()
@@ -28,6 +29,7 @@ differenceRNG = np.random.default_rng(1836)
 
 starPairCount = 10000
 pairGraphLimit = 12
+T = 1000*u.Myr
 
 # fiducial point initial distribution graphs
 starCentres, starCoords = ICG.generateStarCentres(starPairCount, centrePosRNG)
@@ -35,7 +37,7 @@ ICG.starCentresGraph(starCoords, saveGraphs,dirTime)
 
 # pair graphs
 starPairs = ICG.starPairsCreate(differenceRNG, starCentres)
-ICG.starPairGraphs(starPairs, saveGraphs,integrateOrbits, pairGraphLimit, dirTime)
+ICG.starPairGraphs(starPairs,T, saveGraphs,integrateOrbits, pairGraphLimit, dirTime)
 
 # graphing invariants of initial positions
 ICG.invariantGraphs(*ICG.invariantArrays(starPairs),saveGraphs, dirTime)

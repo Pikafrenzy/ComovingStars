@@ -20,7 +20,6 @@ import gala.units as gu
 
 # initial variables
 mw = gp.MilkyWayPotential()
-T = 1000*u.Myr
 
 # truncates a number at 3 decimal places for labels
 def trunc3dp(number):
@@ -46,7 +45,7 @@ def checkSharing(x1, x2, margin):
 # given two phase space positions
 # integrates them using the Milky Way Potential in Gala from Bovy (2015)
 # and graphs a series of variables
-def pairGraph(ID,star0, star1, saveGraphs, dirPath):
+def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     # creating the PhaseSpacePosition objects from position and velocity vectors
     w0 = gd.PhaseSpacePosition(pos = star0.get_Pos(),vel = star0.get_Vel())
     w1 = gd.PhaseSpacePosition(pos = star1.get_Pos(),vel = star1.get_Vel())
