@@ -10,6 +10,7 @@ from datetime import datetime
 import time
 import initConditionGenerator as ICG
 import astropy.units as u
+import fiducialGraph as fG
 
 # notes the start time of running the program to determine how long it ran for
 startTime = time.time()
@@ -41,6 +42,11 @@ ICG.starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, pairGraphLimit
 
 # graphing invariants of initial positions
 ICG.invariantGraphs(*ICG.invariantArrays(starPairs),saveGraphs, dirTime)
+
+
+for (j, starPair) in enumerate(starPairs):
+    if graphIndividualPairs and j < pairGraphLimit:
+        fG.fiducialGraph(j,starCentres[j],*starPair, saveGraphs, dirTime)
 
 # outputs the time it took the program to run
 endTime = time.time()
