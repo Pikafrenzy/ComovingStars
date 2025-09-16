@@ -9,7 +9,7 @@ Created on Fri Aug 29 15:08:13 2025
 # import astropy.coordinates as coord
 import astropy.units as u
 import matplotlib.pyplot as plt
-# import numpy as np
+import numpy as np
 # import os
 import pairGraph as pG
 from initConditionGenerator import dirCheck
@@ -21,23 +21,46 @@ import gala.potential as gp
 
 # initial variables
 mw = gp.MilkyWayPotential()
-T = 1000*u.Myr
+dt = 1*u.Myr
 
-def fiducialIntegrate(centre, star0, star1):
+def fiducialIntegrate(centre, star0, star1, T):
     wCentre = gd.PhaseSpacePosition(pos = centre.get_Pos(),vel = centre.get_Vel())
     w0 = gd.PhaseSpacePosition(pos = star0.get_Pos(),vel = star0.get_Vel())
     w1 = gd.PhaseSpacePosition(pos = star1.get_Pos(),vel = star1.get_Vel())
     
     # integrating 
-    orbitc = mw.integrate_orbit(wCentre, dt = 1*u.Myr, t1=0, t2 = T)
-    orbit0 = mw.integrate_orbit(w0, dt = 1*u.Myr, t1=0, t2 = T)
-    orbit1 = mw.integrate_orbit(w1, dt = 1*u.Myr, t1=0, t2 = T)
+    orbitc = mw.integrate_orbit(wCentre, dt=dt, t1=0, t2 = T)
+    orbit0 = mw.integrate_orbit(w0, dt=dt, t1=0, t2 = T)
+    orbit1 = mw.integrate_orbit(w1, dt=dt, t1=0, t2 = T)
     
     return orbitc, orbit0, orbit1
     
-def fiducialGraph(ID, centre, star0, star1, saveGraphs, dirTime):
 
-    orbitc, orbit0, orbit1 = fiducialIntegrate(centre, star0, star1)
+def freeFallPrediction(star, limit):
+    freefall_x = []
+    freefall_y = []
+    freefall_z = []
+    time = 0*u.Myr
+    
+    while time <= limit:
+        freefall_x.append((star.get_x()+ time*star.get_Vx()).to_value())
+        freefall_y.append((star.get_y()+ time*star.get_Vy()).to_value())
+        freefall_z.append((star.get_z()+ time*star.get_Vz()).to_value())
+        time = time + dt
+    return freefall_x, freefall_y, freefall_z
+
+def freeFallDifference(centre, star, limit):
+    centre_freefall_x, centre_freefall_y, centre_freefall_z = freeFallPrediction(centre, limit)
+    star_freefall_x, star_freefall_y, star_freefall_z = freeFallPrediction(star, limit)
+    difference_freefall_x = np.array(star_freefall_x) - np.array(centre_freefall_x)
+    difference_freefall_y = np.array(star_freefall_y) - np.array(centre_freefall_y)
+    difference_freefall_z = np.array(star_freefall_z) - np.array(centre_freefall_z)
+    return difference_freefall_x, difference_freefall_y, difference_freefall_z
+
+def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime):
+    orbitc, orbit0, orbit1 = fiducialIntegrate(centre, star0, star1, T)
+    star0_freefall_x, star0_freefall_y, star0_freefall_z = freeFallDifference(centre, star0, 100*u.Myr)
+    star1_freefall_x, star1_freefall_y, star1_freefall_z = freeFallDifference(centre, star1, 100*u.Myr)
     
     dirCos = pG.getDirCos(orbit0, orbit1)
     
@@ -57,6 +80,8 @@ def fiducialGraph(ID, centre, star0, star1, saveGraphs, dirTime):
     axX.plot(orbit0.t,orbit0.pos.x-orbitc.pos.x, label = pG.makeLabel(star0.get_Pos(),star0.get_Vel()),color = 'r',lw= 1.0)
     axX.plot(orbit0.t,orbitc.pos.x-orbitc.pos.x, label = pG.makeLabel(centre.get_Pos(),centre.get_Vel()),color = 'b',lw= 1.0)
     axX.plot(orbit0.t,orbit1.pos.x-orbitc.pos.x, label = pG.makeLabel(star1.get_Pos(),star1.get_Vel()),color = 'g',lw= 1.0)
+    axX.plot(orbit0.t[0:len(star0_freefall_x)],star0_freefall_x,label = "Freefall at Red Initial Conditions", color = 'y',linestyle = "--")
+    axX.plot(orbit0.t[0:len(star1_freefall_x)],star1_freefall_x,label = "Freefall at Green Initial Conditions",color = 'c',linestyle = "--")
     axX.set_ylabel('Displacement (kpc)')
     axX.set_title("x")
     axX.tick_params('x',labelbottom = False)
@@ -67,6 +92,8 @@ def fiducialGraph(ID, centre, star0, star1, saveGraphs, dirTime):
     axY.plot(orbit0.t,orbit0.pos.y-orbitc.pos.y, color = 'r',lw= 1.0)
     axY.plot(orbit0.t,orbitc.pos.y-orbitc.pos.y, color = 'b',lw= 1.0)
     axY.plot(orbit0.t,orbit1.pos.y-orbitc.pos.y, color = 'g',lw= 1.0)
+    axY.plot(orbit0.t[0:len(star0_freefall_y)],star0_freefall_y,color = 'y',linestyle = "--")
+    axY.plot(orbit0.t[0:len(star1_freefall_y)],star1_freefall_y,color = 'c',linestyle = "--")
     axY.set_title("y")
     axY.tick_params('y',labelleft = False)
     axY.tick_params('x',labelbottom = False)
@@ -75,6 +102,8 @@ def fiducialGraph(ID, centre, star0, star1, saveGraphs, dirTime):
     axZ.plot(orbit0.t,orbit0.pos.z-orbitc.pos.z, color = 'r',lw= 1.0)
     axZ.plot(orbit0.t,orbitc.pos.z-orbitc.pos.z, color = 'b',lw= 1.0)
     axZ.plot(orbit0.t,orbit1.pos.z-orbitc.pos.z, color = 'g',lw= 1.0)
+    axZ.plot(orbit0.t[0:len(star0_freefall_z)],star0_freefall_z,color = 'y',linestyle = "--")
+    axZ.plot(orbit0.t[0:len(star1_freefall_z)],star1_freefall_z,color = 'c',linestyle = "--")
     axZ.set_title("z")
     axZ.tick_params('y',labelleft = False)
     axZ.tick_params('x',labelbottom = False)

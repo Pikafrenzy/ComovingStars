@@ -57,14 +57,14 @@ def generateStarCentres(centreCount, rng):
         posR = rng.uniform(0.0,20.0)
         posTheta = rng.uniform(0.0,2*np.pi)
         
-        posx = posR*np.cos(posTheta)*u.kpc
-        posy = posR*np.sin(posTheta)*u.kpc
-        posz = 0.0*u.kpc
+        posx = posR*np.cos(posTheta)
+        posy = posR*np.sin(posTheta)
+        posz = 0.0
         
-        velMean = generateVelocity(posx.to_value(),posy.to_value(),posz.to_value())
-        vx = rng.normal(velMean[0],30)*u.km/u.s
-        vy = rng.normal(velMean[1],30)*u.km/u.s
-        vz = rng.normal(velMean[2],30)*u.km/u.s
+        velMean = generateVelocity(posx,posy,posz)
+        vx = rng.normal(velMean[0],30)
+        vy = rng.normal(velMean[1],30)
+        vz = rng.normal(velMean[2],30)
         
         starCentres.append(Star(posx,posy,posz,vx,vy,vz))
     

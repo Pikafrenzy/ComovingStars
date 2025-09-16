@@ -46,7 +46,7 @@ ICG.invariantGraphs(*ICG.invariantArrays(starPairs),saveGraphs, dirTime)
 
 for (j, starPair) in enumerate(starPairs):
     if graphIndividualPairs and j < pairGraphLimit:
-        fG.fiducialGraph(j,starCentres[j],*starPair, saveGraphs, dirTime)
+        fG.fiducialGraph(j, T,starCentres[j],*starPair, saveGraphs, dirTime)
 
 # outputs the time it took the program to run
 endTime = time.time()
