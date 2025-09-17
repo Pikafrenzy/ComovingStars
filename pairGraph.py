@@ -11,8 +11,11 @@ import astropy.units as u
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
+from IDFolder import IDdirCheck
+from freeFall import freeFallDifference
 # from pathlib import Path
 # import os
+
 
 # Gala
 import gala.dynamics as gd
@@ -110,6 +113,7 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     (diff_X, diff_Y, diff_Z, diff_Vx, diff_Vy, diff_Vz,
      magPosDifference, magVelDifference, dirCos, diffKE,
      diffPE, diffHamiltonian) = orbitCalcs(orbit0, orbit1)
+    diff_freefall_x, diff_freefall_y, diff_freefall_z = freeFallDifference(star0, star1, 100*u.Myr)
     
     # creating the initial figure and subfigures
     plt.rcParams.update({'font.size': 10})
@@ -169,6 +173,7 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     axDiffX = subfigs[1].add_subplot(gs1[0,0])
     axDiffX.plot(orbit0.t,diff_X)
     axDiffX.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffX.plot(orbit0.t[0:len(diff_freefall_x)],diff_freefall_x,label = "Freefall", color = 'r')
     axDiffX.set_title("Difference in x")
     axDiffX.set_ylabel("Position (kpc)")
     axDiffX.tick_params('x',labelbottom = False)
@@ -181,6 +186,7 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
         axDiffY.set_ylabel("Position (kpc)")
     axDiffY.plot(orbit0.t,diff_Y)
     axDiffY.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffY.plot(orbit0.t[0:len(diff_freefall_y)],diff_freefall_y,label = "Freefall", color = 'r')
     axDiffY.set_title("Difference in y")
     axDiffY.tick_params('x',labelbottom = False)
     
@@ -192,6 +198,7 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
         axDiffZ.set_ylabel("Position (kpc)")
     axDiffZ.plot(orbit0.t,diff_Z)
     axDiffZ.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffZ.plot(orbit0.t[0:len(diff_freefall_z)],diff_freefall_z,label = "Freefall", color = 'r')
     axDiffZ.set_title("Difference in z")
     axDiffZ.tick_params('x',labelbottom = False)
     
@@ -270,8 +277,9 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     axHamiltonian.set_xlabel("t (Myr)")
 
     # saving graphs
-    fileName = "Star_Pair_"+str(ID)+".png"
-    pathPair = dirPath/fileName
+    fileName = "Star_Pair.png"
+    IDdirPath = IDdirCheck(ID,dirPath)
+    pathPair = IDdirPath/fileName
     
     if(saveGraphs): 
         plt.savefig(pathPair)   
