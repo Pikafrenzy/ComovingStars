@@ -170,7 +170,7 @@ def starPairsCreate(differenceRNG, starCentres, separationScalar):
         starPairs.append(starPair)
     return starPairs
 
-def starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, graphLimit, dirTime):
+def starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, graphLimit, dirTime, limitTime):
     # creating and populating arrays containing the locations of each pair and their differences in phase space
     starX = []
     starY = []
@@ -203,7 +203,7 @@ def starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, graphLimit, di
         # graphing each pair of stars
         if graphIndividualPairs and j < graphLimit:
            dirPath = dirCheck(saveGraphs, dirTime)
-           pairGraph.pairGraph(j,starPair[0],starPair[1],T,saveGraphs,dirPath)
+           pairGraph.pairGraph(j,starPair[0],starPair[1],T,saveGraphs,dirPath, limitTime)
 
     # plotting the displacement between the stars as four plots in one figure 
     plt.rcParams.update({'font.size': 25})

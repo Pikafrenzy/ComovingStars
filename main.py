@@ -18,7 +18,7 @@ startTime = time.time()
 # toggle for whether graphs are saved automatically to computer
 saveGraphs = False
 # toggle for whether pairs are graphed
-graphIndividualPairs = False
+graphIndividualPairs = True
 
 # saves start time for directories
 dirTime = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -31,6 +31,7 @@ differenceRNG = np.random.default_rng(1836)
 starPairCount = 10000
 pairGraphLimit = 50
 T = 10000*u.Myr
+limitTime = 10000*u.Myr
 
 separationScalar = 2
 
@@ -40,7 +41,7 @@ ICG.starCentresGraph(starCoords, saveGraphs,dirTime)
 
 # pair graphs
 starPairs = ICG.starPairsCreate(differenceRNG, starCentres,separationScalar)
-ICG.starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, pairGraphLimit, dirTime)
+ICG.starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, pairGraphLimit, dirTime, limitTime)
 
 # graphing invariants of initial positions
 ICG.invariantGraphs(*ICG.invariantArrays(starPairs),saveGraphs, dirTime)
@@ -48,7 +49,7 @@ ICG.invariantGraphs(*ICG.invariantArrays(starPairs),saveGraphs, dirTime)
 
 for (j, starPair) in enumerate(starPairs):
     if graphIndividualPairs and j < pairGraphLimit:
-        fG.fiducialGraph(j, T,starCentres[j],*starPair, saveGraphs, dirTime)
+        fG.fiducialGraph(j, T,starCentres[j],*starPair, saveGraphs, dirTime, limitTime)
 
 # outputs the time it took the program to run
 endTime = time.time()

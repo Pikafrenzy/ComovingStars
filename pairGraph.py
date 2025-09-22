@@ -13,6 +13,7 @@ import matplotlib.gridspec as gridspec
 import numpy as np
 from IDFolder import IDdirCheck
 from freeFall import freeFallDifference
+from xLimIndex import xLimIndex
 # from pathlib import Path
 # import os
 
@@ -24,6 +25,7 @@ import gala.potential as gp
 
 # initial variables
 mw = gp.MilkyWayPotential()
+dt = 1*u.Myr
 
 # truncates a number at 3 decimal places for labels
 def trunc3dp(number):
@@ -52,8 +54,8 @@ def pairIntegrate(star0, star1, T):
     w1 = gd.PhaseSpacePosition(pos = star1.get_Pos(),vel = star1.get_Vel())
     
     # integrating orbits
-    orbit0 = mw.integrate_orbit(w0, dt = 1*u.Myr, t1=0, t2 = T)
-    orbit1 = mw.integrate_orbit(w1, dt = 1*u.Myr, t1=0, t2 = T)
+    orbit0 = mw.integrate_orbit(w0, dt = dt, t1=0, t2 = T)
+    orbit1 = mw.integrate_orbit(w1, dt = dt, t1=0, t2 = T)
     
     return orbit0, orbit1
 
@@ -107,13 +109,17 @@ def getDirCos(orbit0, orbit1):
 # given two phase space positions
 # integrates them using the Milky Way Potential in Gala from Bovy (2015)
 # and graphs a series of variables
-def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
+def pairGraph(ID,star0, star1, T, saveGraphs, dirPath, limitTime):
 
     orbit0, orbit1 = pairIntegrate(star0, star1, T)
     (diff_X, diff_Y, diff_Z, diff_Vx, diff_Vy, diff_Vz,
      magPosDifference, magVelDifference, dirCos, diffKE,
      diffPE, diffHamiltonian) = orbitCalcs(orbit0, orbit1)
-    diff_freefall_x, diff_freefall_y, diff_freefall_z = freeFallDifference(star0, star1, 100*u.Myr)
+    freefallLimit = min(limitTime, 100*u.Myr)
+    
+    diff_freefall_x, diff_freefall_y, diff_freefall_z = freeFallDifference(star0, star1, freefallLimit)
+    
+    xMax = int(xLimIndex(orbit0.t[0], limitTime ,dt))
     
     # creating the initial figure and subfigures
     plt.rcParams.update({'font.size': 10})
@@ -133,8 +139,8 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     star1_label = makeLabel(star1.get_Pos(), star1.get_Vel())
     
     # plotting the phase space positions of both stars over the integrated period
-    axY.plot(orbit0.pos.x,orbit0.pos.y,label=star0_label,linewidth = 0.3, color = 'r')
-    axY.plot(orbit1.pos.x,orbit1.pos.y,label=star1_label,linewidth = 0.3, color = 'b')
+    axY.plot(orbit0.pos.x[0:xMax],orbit0.pos.y[0:xMax],label=star0_label,linewidth = 0.3, color = 'r')
+    axY.plot(orbit1.pos.x[0:xMax],orbit1.pos.y[0:xMax],label=star1_label,linewidth = 0.3, color = 'b')
     axY.set_box_aspect(1)
     axY.axis('equal')
     axY.set_title("Y against X")
@@ -143,8 +149,8 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     
     fig.legend(loc = 'outside upper left')
     
-    axZ.plot(orbit0.pos.x,orbit0.pos.z,linewidth = 0.3, color = 'r')
-    axZ.plot(orbit1.pos.x,orbit1.pos.z,linewidth = 0.3, color = 'b')
+    axZ.plot(orbit0.pos.x[0:xMax],orbit0.pos.z[0:xMax],linewidth = 0.3, color = 'r')
+    axZ.plot(orbit1.pos.x[0:xMax],orbit1.pos.z[0:xMax],linewidth = 0.3, color = 'b')
     axZ.set_box_aspect(1)
     axZ.axis('equal')
     axZ.set_ylabel("z (kpc)")
@@ -152,16 +158,16 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     axZ.set_title("Z against X")
     axZ.tick_params('y',labelleft = False)
 
-    axVelY.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_y.to(u.km/u.s),linewidth = 0.3, color = 'r')
-    axVelY.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_y.to(u.km/u.s),linewidth = 0.3, color = 'b')
+    axVelY.plot((orbit0.v_x.to(u.km/u.s))[0:xMax],(orbit0.v_y.to(u.km/u.s))[0:xMax],linewidth = 0.3, color = 'r')
+    axVelY.plot((orbit1.v_x.to(u.km/u.s))[0:xMax],(orbit1.v_y.to(u.km/u.s))[0:xMax],linewidth = 0.3, color = 'b')
     axVelY.set_box_aspect(1)
     axVelY.axis('equal')
     axVelY.set_title("$v_y$ against $v_x$")
     axVelY.set_ylabel("$v_y$ (km/s)")
     axVelY.set_xlabel("$v_x$ (km/s)")
     
-    axVelZ.plot(orbit0.v_x.to(u.km/u.s),orbit0.v_z.to(u.km/u.s),linewidth = 0.3, color = 'r')
-    axVelZ.plot(orbit1.v_x.to(u.km/u.s),orbit1.v_z.to(u.km/u.s),linewidth = 0.3, color = 'b')
+    axVelZ.plot((orbit0.v_x.to(u.km/u.s))[0:xMax],(orbit0.v_z.to(u.km/u.s))[0:xMax],linewidth = 0.3, color = 'r')
+    axVelZ.plot((orbit1.v_x.to(u.km/u.s))[0:xMax],(orbit1.v_z.to(u.km/u.s))[0:xMax],linewidth = 0.3, color = 'b')
     axVelZ.set_box_aspect(1)
     axVelZ.axis('equal')
     axVelZ.set_title("$v_z$ against $v_x$")
@@ -171,8 +177,8 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     
     # position plots
     axDiffX = subfigs[1].add_subplot(gs1[0,0])
-    axDiffX.plot(orbit0.t,diff_X)
-    axDiffX.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffX.plot(orbit0.t[0:xMax],diff_X[0:xMax])
+    axDiffX.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axDiffX.plot(orbit0.t[0:len(diff_freefall_x)],diff_freefall_x,label = "Freefall", color = 'r')
     axDiffX.set_title("Difference in x")
     axDiffX.set_ylabel("Position (kpc)")
@@ -184,8 +190,8 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     else:
         axDiffY = subfigs[1].add_subplot(gs1[0,1])
         axDiffY.set_ylabel("Position (kpc)")
-    axDiffY.plot(orbit0.t,diff_Y)
-    axDiffY.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffY.plot(orbit0.t[0:xMax],diff_Y[0:xMax])
+    axDiffY.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axDiffY.plot(orbit0.t[0:len(diff_freefall_y)],diff_freefall_y,label = "Freefall", color = 'r')
     axDiffY.set_title("Difference in y")
     axDiffY.tick_params('x',labelbottom = False)
@@ -196,16 +202,16 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     else:
         axDiffZ = fig.add_subplot(gs1[0,2])
         axDiffZ.set_ylabel("Position (kpc)")
-    axDiffZ.plot(orbit0.t,diff_Z)
-    axDiffZ.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffZ.plot(orbit0.t[0:xMax],diff_Z[0:xMax])
+    axDiffZ.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axDiffZ.plot(orbit0.t[0:len(diff_freefall_z)],diff_freefall_z,label = "Freefall", color = 'r')
     axDiffZ.set_title("Difference in z")
     axDiffZ.tick_params('x',labelbottom = False)
     
     # velocity plots
     axDiffVx = fig.add_subplot(gs1[1,0],sharex=axDiffX)
-    axDiffVx.plot(orbit0.t,diff_Vx)
-    axDiffVx.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffVx.plot(orbit0.t[0:xMax],diff_Vx[0:xMax])
+    axDiffVx.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axDiffVx.set_title("Difference in $v_x$")
     axDiffVx.set_ylabel("Velocity (km/s)")
     axDiffVx.tick_params('x',labelbottom = False)
@@ -216,8 +222,8 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     else:
         axDiffVy = fig.add_subplot(gs1[1,1])
         axDiffVy.set_ylabel("Velocity (km/s)")
-    axDiffVy.plot(orbit0.t,diff_Vy)
-    axDiffVy.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffVy.plot(orbit0.t[0:xMax],diff_Vy[0:xMax])
+    axDiffVy.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axDiffVy.set_title("Difference in $v_y$")
     axDiffVy.tick_params('x',labelbottom = False)
     
@@ -227,52 +233,52 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
     else:
         axDiffVz = fig.add_subplot(gs1[1,2])
         axDiffVz.set_ylabel("Velocity (km/s)")
-    axDiffVz.plot(orbit0.t,diff_Vz)
-    axDiffVz.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffVz.plot(orbit0.t[0:xMax],diff_Vz[0:xMax])
+    axDiffVz.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axDiffVz.set_title("Difference in $v_z$")
     axDiffVz.tick_params('x',labelbottom = False)
     
     # plotting the position displacement magnitude
     axDiffMagPos = fig.add_subplot(gs1[2,0],sharex = axDiffVx)
-    axDiffMagPos.plot(orbit0.t,magPosDifference)
-    axDiffMagPos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffMagPos.plot(orbit0.t[0:xMax],magPosDifference[0:xMax])
+    axDiffMagPos.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axDiffMagPos.set_title("Magnitude of difference in position")
     axDiffMagPos.set_ylabel(r"$|\vec x|$ (kpc)")
     axDiffMagPos.tick_params('x',labelbottom = False)
     
     # plotting the velocity displacement magnitude
     axDiffMagVel = fig.add_subplot(gs1[2,2],sharex = axDiffVz)
-    axDiffMagVel.plot(orbit0.t,magVelDifference)
-    axDiffMagVel.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDiffMagVel.plot(orbit0.t[0:xMax],magVelDifference[0:xMax])
+    axDiffMagVel.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axDiffMagVel.set_title("Magnitude of difference in velocity")
     axDiffMagVel.set_ylabel(r"$|\vec v|$ (km/s)")
     axDiffMagVel.tick_params('x',labelbottom = False)
     
     # plotting the direction cosine
     axDirCos = fig.add_subplot(gs1[2,1],sharex = axDiffVy)
-    axDirCos.plot(orbit0.t,dirCos)    
-    axDirCos.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axDirCos.plot(orbit0.t[0:xMax],dirCos[0:xMax])    
+    axDirCos.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axDirCos.set_title("Direction Cosine")
     axDirCos.set_ylabel(r"$\frac{x \cdot \overline{v}}{|x||\overline{v}|}$")
     axDirCos.tick_params('x',labelbottom = False)
     
     # energy plots
     axKE = fig.add_subplot(gs1[3,0])
-    axKE.plot(orbit0.t,diffKE)
-    axKE.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axKE.plot(orbit0.t[0:xMax],diffKE[0:xMax])
+    axKE.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axKE.set_title("Difference in Kinetic Energy")
     axKE.set_ylabel(r"Energy ($\text{km}^2 \text{s}^{-2}$)")
     axKE.set_xlabel("t (Myr)")
     
     axPE = fig.add_subplot(gs1[3,1],sharey = axKE)
-    axPE.plot(orbit0.t,diffPE)
-    axPE.plot(orbit0.t, orbit0.t*0, color = (0.0,0.0,0.0,0.5))
+    axPE.plot(orbit0.t[0:xMax],diffPE[0:xMax])
+    axPE.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axPE.set_title("Difference in Potential Energy")
     axPE.set_xlabel("t (Myr)")
     axPE.tick_params('y',labelleft = False)
     
     axHamiltonian = fig.add_subplot(gs1[3,2])
-    axHamiltonian.plot(orbit0.t,diffHamiltonian)
+    axHamiltonian.plot(orbit0.t[0:xMax],diffHamiltonian[0:xMax])
     axHamiltonian.set_title("Difference in Total Energy")
     axHamiltonian.set_xlabel("t (Myr)")
 

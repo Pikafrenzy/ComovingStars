@@ -17,7 +17,7 @@ def freeFallPrediction(star, limit):
     freefall_z = []
     time = 0*u.Myr
     
-    while time <= limit:
+    while time < limit:
         freefall_x.append((star.get_x()+ time*star.get_Vx()).to_value())
         freefall_y.append((star.get_y()+ time*star.get_Vy()).to_value())
         freefall_z.append((star.get_z()+ time*star.get_Vz()).to_value())
