@@ -29,15 +29,17 @@ centrePosRNG = np.random.default_rng(137)
 differenceRNG = np.random.default_rng(1836)
 
 starPairCount = 10000
-pairGraphLimit = 12
-T = 1000*u.Myr
+pairGraphLimit = 50
+T = 10000*u.Myr
+
+separationScalar = 2
 
 # fiducial point initial distribution graphs
 starCentres, starCoords = ICG.generateStarCentres(starPairCount, centrePosRNG)
 ICG.starCentresGraph(starCoords, saveGraphs,dirTime)
 
 # pair graphs
-starPairs = ICG.starPairsCreate(differenceRNG, starCentres)
+starPairs = ICG.starPairsCreate(differenceRNG, starCentres,separationScalar)
 ICG.starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, pairGraphLimit, dirTime)
 
 # graphing invariants of initial positions

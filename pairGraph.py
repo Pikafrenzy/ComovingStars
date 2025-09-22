@@ -278,7 +278,7 @@ def pairGraph(ID,star0, star1, T, saveGraphs, dirPath):
 
     # saving graphs
     fileName = "Star_Pair.png"
-    IDdirPath = IDdirCheck(ID,dirPath)
+    IDdirPath = IDdirCheck(ID,dirPath,saveGraphs)
     pathPair = IDdirPath/fileName
     
     if(saveGraphs): 

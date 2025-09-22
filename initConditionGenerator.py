@@ -132,29 +132,29 @@ def starCentresGraph(starCoords,saveGraphs,dirTime):
 # given a point in phase space
 # generates two points equally distanced from the point in all 6 dimensions of phase space
 # using a multidimensional Gaussian
-def pairGenerator(differenceRNG, starCentre):
+def pairGenerator(differenceRNG, starCentre, separationScalar):
     
-    xDiff = differenceRNG.normal(0,0.001)
+    xDiff = differenceRNG.normal(0,0.001*separationScalar)
     x1 = starCentre.get_x().to_value() + xDiff
     x2 = starCentre.get_x().to_value() - xDiff
     
-    yDiff = differenceRNG.normal(0,0.001)
+    yDiff = differenceRNG.normal(0,0.001*separationScalar)
     y1 = starCentre.get_y().to_value() + yDiff
     y2 = starCentre.get_y().to_value() - yDiff
     
-    zDiff = differenceRNG.normal(0,0.001)
+    zDiff = differenceRNG.normal(0,0.001*separationScalar)
     z1 = starCentre.get_z().to_value() + zDiff
     z2 = starCentre.get_z().to_value() - zDiff
     
-    vxDiff = differenceRNG.normal(0,0.1)
+    vxDiff = differenceRNG.normal(0,0.1*separationScalar)
     vx1 = starCentre.get_Vx().to_value() + vxDiff
     vx2 = starCentre.get_Vx().to_value() - vxDiff
     
-    vyDiff = differenceRNG.normal(0,0.1)
+    vyDiff = differenceRNG.normal(0,0.1*separationScalar)
     vy1 = starCentre.get_Vy().to_value() + vyDiff
     vy2 = starCentre.get_Vy().to_value() - vyDiff
     
-    vzDiff = differenceRNG.normal(0,0.1)
+    vzDiff = differenceRNG.normal(0,0.1*separationScalar)
     vz1 = starCentre.get_Vz().to_value() + vzDiff
     vz2 = starCentre.get_Vz().to_value() - vzDiff
     
@@ -163,10 +163,10 @@ def pairGenerator(differenceRNG, starCentre):
     return [star1, star2]
 
 # creates all star pairs from the centres given
-def starPairsCreate(differenceRNG, starCentres):
+def starPairsCreate(differenceRNG, starCentres, separationScalar):
     starPairs = []
     for star in starCentres:
-        starPair = pairGenerator(differenceRNG, star)
+        starPair = pairGenerator(differenceRNG, star, separationScalar)
         starPairs.append(starPair)
     return starPairs
 

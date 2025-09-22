@@ -116,7 +116,7 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime):
     dirPath = dirCheck(saveGraphs, dirTime)
     # saving graphs
     fileName = "Fiducial_and_Star_Pair.png"
-    IDdirPath = IDdirCheck(ID,dirPath)
+    IDdirPath = IDdirCheck(ID,dirPath,saveGraphs)
     pathFiducial = IDdirPath/fileName
     
     if(saveGraphs): 
