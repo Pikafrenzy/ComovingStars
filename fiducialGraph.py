@@ -26,6 +26,39 @@ import gala.potential as gp
 mw = gp.MilkyWayPotential()
 dt = 1*u.Myr
 
+def accelEstimate(orbit0,orbit1):
+    deltaVx = orbit1.v_x-orbit0.v_x
+    deltaVy = orbit1.v_y-orbit0.v_y
+    deltaVz = orbit1.v_z-orbit0.v_z
+    
+    mean_Vx = 0.5*(orbit1.v_x+orbit0.v_x).to(u.km/u.s)
+    mean_Vy = 0.5*(orbit1.v_y+orbit0.v_y).to(u.km/u.s)
+    mean_Vz = 0.5*(orbit1.v_z+orbit0.v_z).to(u.km/u.s)
+    
+    magVelMean = np.sqrt(mean_Vx**2+mean_Vy**2+mean_Vz**2)
+    
+    deltaX = (orbit1.pos.x-orbit0.pos.x).to(u.km)
+    deltaY = (orbit1.pos.y-orbit0.pos.y).to(u.km)
+    deltaZ = (orbit1.pos.z-orbit0.pos.z).to(u.km)
+    
+    magDeltaX = np.sqrt(deltaX**2+deltaY**2+deltaZ**2)
+    
+    accelX = (deltaVx*magVelMean/magDeltaX).to(u.km/u.s**2)
+    accelY = (deltaVy*magVelMean/magDeltaX).to(u.km/u.s**2)
+    accelZ = (deltaVz*magVelMean/magDeltaX).to(u.km/u.s**2)
+    
+    return [accelX, accelY, accelZ]
+    
+def trueAccel(orbit):
+    accelX = []
+    accelY = []
+    accelZ = []
+    for position in orbit:
+        accelX.append((mw.acceleration(position)[0]).to(u.km/u.s/u.s))
+        accelY.append((mw.acceleration(position)[1]).to(u.km/u.s/u.s))
+        accelZ.append((mw.acceleration(position)[2]).to(u.km/u.s/u.s))
+    return [accelX, accelY, accelZ]
+    
 def fiducialIntegrate(centre, star0, star1, T):
     wCentre = gd.PhaseSpacePosition(pos = centre.get_Pos(),vel = centre.get_Vel())
     w0 = gd.PhaseSpacePosition(pos = star0.get_Pos(),vel = star0.get_Vel())
@@ -45,6 +78,9 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     star0_freefall_x, star0_freefall_y, star0_freefall_z = freeFallDifference(centre, star0, freefallLimit)
     star1_freefall_x, star1_freefall_y, star1_freefall_z = freeFallDifference(centre, star1, freefallLimit)
     
+    aEst = accelEstimate(orbit0, orbit1)
+    aTrue = trueAccel(orbitc)
+    
     dirCos = pG.getDirCos(orbit0, orbit1)
     
     xMax = int(xLimIndex(orbit0.t[0], limitTime ,dt))
@@ -54,14 +90,14 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     
     fig = plt.figure(figsize = (12,9))
     
-    axDirCos = plt.subplot(332)
+    axDirCos = plt.subplot(4,3,2)
     axDirCos.plot(orbit0.t[0:xMax], (orbit0.t*0)[0:xMax], color = (0.0,0.0,0.0,0.5))
     axDirCos.plot(orbit0.t[0:xMax],dirCos[0:xMax])
     axDirCos.set_title("Direction Cosine")
     axDirCos.set_ylabel(r"$\frac{x \cdot \overline{v}}{|x||\overline{v}|}$")
     axDirCos.tick_params('x',labelbottom = False)
     
-    axX = plt.subplot(334)
+    axX = plt.subplot(4,3,4)
     axX.plot(orbit0.t[0:xMax],(orbit0.pos.x-orbitc.pos.x)[0:xMax], label = pG.makeLabel(star0.get_Pos(),star0.get_Vel()),color = 'r',lw= 1.0)
     axX.plot(orbit0.t[0:xMax],(orbitc.pos.x-orbitc.pos.x)[0:xMax], label = pG.makeLabel(centre.get_Pos(),centre.get_Vel()),color = 'b',lw= 1.0)
     axX.plot(orbit0.t[0:xMax],(orbit1.pos.x-orbitc.pos.x)[0:xMax], label = pG.makeLabel(star1.get_Pos(),star1.get_Vel()),color = 'g',lw= 1.0)
@@ -73,7 +109,7 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     
     fig.legend(loc = 'outside upper left')
     
-    axY = plt.subplot(335, sharey = axX)
+    axY = plt.subplot(4,3,5, sharey = axX)
     axY.plot(orbit0.t[0:xMax],(orbit0.pos.y-orbitc.pos.y)[0:xMax], color = 'r',lw= 1.0)
     axY.plot(orbit0.t[0:xMax],(orbitc.pos.y-orbitc.pos.y)[0:xMax], color = 'b',lw= 1.0)
     axY.plot(orbit0.t[0:xMax],(orbit1.pos.y-orbitc.pos.y)[0:xMax], color = 'g',lw= 1.0)
@@ -83,7 +119,7 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     axY.tick_params('y',labelleft = False)
     axY.tick_params('x',labelbottom = False)
     
-    axZ = plt.subplot(336, sharey = axX)
+    axZ = plt.subplot(4,3,6, sharey = axX)
     axZ.plot(orbit0.t[0:xMax],(orbit0.pos.z-orbitc.pos.z)[0:xMax], color = 'r',lw= 1.0)
     axZ.plot(orbit0.t[0:xMax],(orbitc.pos.z-orbitc.pos.z)[0:xMax], color = 'b',lw= 1.0)
     axZ.plot(orbit0.t[0:xMax],(orbit1.pos.z-orbitc.pos.z)[0:xMax], color = 'g',lw= 1.0)
@@ -93,30 +129,53 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     axZ.tick_params('y',labelleft = False)
     axZ.tick_params('x',labelbottom = False)
     
-    axVelX = plt.subplot(337, sharex = axX)
+    axVelX = plt.subplot(4,3,7, sharex = axX)
     axVelX.plot(orbit0.t[0:xMax],(orbit0.v_x-orbitc.v_x)[0:xMax], color = 'r',lw= 1.0)
     axVelX.plot(orbit0.t[0:xMax],(orbitc.v_x-orbitc.v_x)[0:xMax], color = 'b',lw= 1.0)
     axVelX.plot(orbit0.t[0:xMax],(orbit1.v_x-orbitc.v_x)[0:xMax], color = 'g',lw= 1.0)
     axVelX.set_title(r"$v_x$")
     axVelX.set_ylabel('Velocity (kpc/Myr)')
-    axVelX.set_xlabel('Time (Myr)')
-    
-    axVelY = plt.subplot(338, sharey = axVelX, sharex = axY)
+    axVelX.tick_params('x',labelbottom = False)
+
+    axVelY = plt.subplot(4,3,8, sharey = axVelX, sharex = axY)
     axVelY.plot(orbit0.t[0:xMax],(orbit0.v_y-orbitc.v_y)[0:xMax], color = 'r',lw= 1.0)
     axVelY.plot(orbit0.t[0:xMax],(orbitc.v_y-orbitc.v_y)[0:xMax], color = 'b',lw= 1.0)
     axVelY.plot(orbit0.t[0:xMax],(orbit1.v_y-orbitc.v_y)[0:xMax], color = 'g',lw= 1.0)
     axVelY.set_title(r"$v_y$")
     axVelY.tick_params('y',labelleft = False)
-    axVelY.set_xlabel('Time (Myr)')
+    axVelY.tick_params('x',labelbottom = False)
 
-    axVelZ = plt.subplot(339, sharey = axVelX, sharex = axZ)
+    axVelZ = plt.subplot(4,3,9, sharey = axVelX, sharex = axZ)
     axVelZ.plot(orbit0.t[0:xMax],(orbit0.v_z-orbitc.v_z)[0:xMax], color = 'r',lw= 1.0)
     axVelZ.plot(orbit0.t[0:xMax],(orbitc.v_z-orbitc.v_z)[0:xMax], color = 'b',lw= 1.0)
     axVelZ.plot(orbit0.t[0:xMax],(orbit1.v_z-orbitc.v_z)[0:xMax], color = 'g',lw= 1.0)
     axVelZ.set_title(r"$v_z$")
     axVelZ.tick_params('y',labelleft = False)
-    axVelZ.set_xlabel('Time (Myr)')
+    axVelZ.tick_params('x',labelbottom = False)
     
+    axAccelX = plt.subplot(4,3,10,sharex = axX)
+    axAccelX.plot(orbit0.t[0:xMax],aEst[0][0:xMax],color = 'r',label = "Estimated Acceleration")
+    axAccelX.plot(orbit0.t[0:xMax],aTrue[0][0:xMax],color = 'g',label = "True Acceleration")
+    axAccelX.set_xlabel('Time (Myr)')
+    axAccelX.set_title(r"$a_x$")
+    axAccelX.set_ylabel('Acceleration($km/s^2$)')
+    axAccelX.legend()
+    
+    axAccelY = plt.subplot(4,3,11,sharex = axY, sharey = axAccelX)
+    axAccelY.plot(orbit0.t[0:xMax],aEst[1][0:xMax],color = 'r',label = "Estimated Acceleration")
+    axAccelY.plot(orbit0.t[0:xMax],aTrue[1][0:xMax],color = 'g',label = "True Acceleration")
+    axAccelY.set_xlabel('Time (Myr)')
+    axAccelY.set_title(r"$a_y$")
+    axAccelY.tick_params('y',labelleft = False)
+    axAccelY.legend()
+    
+    axAccelZ = plt.subplot(4,3,12,sharex = axZ,sharey = axAccelX)
+    axAccelZ.plot(orbit0.t[0:xMax],aEst[2][0:xMax],color = 'r',label = "Estimated Acceleration")
+    axAccelZ.plot(orbit0.t[0:xMax],aTrue[2][0:xMax],color = 'g',label = "True Acceleration")
+    axAccelZ.set_xlabel('Time (Myr)')
+    axAccelZ.set_title(r"$a_z$")
+    axAccelZ.tick_params('y',labelleft = False)
+    axAccelZ.legend()
     
     dirPath = dirCheck(saveGraphs, dirTime)
     # saving graphs

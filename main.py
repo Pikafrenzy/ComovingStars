@@ -46,7 +46,6 @@ ICG.starPairGraphs(starPairs,T, saveGraphs, graphIndividualPairs, pairGraphLimit
 # graphing invariants of initial positions
 ICG.invariantGraphs(*ICG.invariantArrays(starPairs),saveGraphs, dirTime)
 
-
 for (j, starPair) in enumerate(starPairs):
     if graphIndividualPairs and j < pairGraphLimit:
         fG.fiducialGraph(j, T,starCentres[j],*starPair, saveGraphs, dirTime, limitTime)
