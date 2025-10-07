@@ -33,7 +33,7 @@ pairGraphLimit = 50
 T = 10000*u.Myr
 limitTime = 10000*u.Myr
 
-separationScalar = 2
+separationScalar = 4
 
 # fiducial point initial distribution graphs
 starCentres, starCoords = ICG.generateStarCentres(starPairCount, centrePosRNG)

@@ -6,7 +6,7 @@ Created on Fri Aug 29 15:08:13 2025
 @author: ambroselo
 """
 
-# import astropy.coordinates as coord
+import astropy.coordinates as coord
 import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,38 +27,17 @@ mw = gp.MilkyWayPotential()
 dt = 1*u.Myr
 
 def accelEstimate(orbit0,orbit1):
-    deltaVx = orbit1.v_x-orbit0.v_x
-    deltaVy = orbit1.v_y-orbit0.v_y
-    deltaVz = orbit1.v_z-orbit0.v_z
+    delta_vel = orbit1.vel-orbit0.vel
+    mean_vel = coord.CartesianDifferential(0.5*(orbit1.vel+orbit0.vel).get_d_xyz().to(u.km/u.s))
+    delta_pos = orbit1.pos-orbit0.pos
     
-    mean_Vx = 0.5*(orbit1.v_x+orbit0.v_x).to(u.km/u.s)
-    mean_Vy = 0.5*(orbit1.v_y+orbit0.v_y).to(u.km/u.s)
-    mean_Vz = 0.5*(orbit1.v_z+orbit0.v_z).to(u.km/u.s)
-    
-    magVelMean = np.sqrt(mean_Vx**2+mean_Vy**2+mean_Vz**2)
-    
-    deltaX = (orbit1.pos.x-orbit0.pos.x).to(u.km)
-    deltaY = (orbit1.pos.y-orbit0.pos.y).to(u.km)
-    deltaZ = (orbit1.pos.z-orbit0.pos.z).to(u.km)
-    
-    magDeltaX = np.sqrt(deltaX**2+deltaY**2+deltaZ**2)
-    
-    accelX = (deltaVx*magVelMean/magDeltaX).to(u.km/u.s**2)
-    accelY = (deltaVy*magVelMean/magDeltaX).to(u.km/u.s**2)
-    accelZ = (deltaVz*magVelMean/magDeltaX).to(u.km/u.s**2)
-    
-    return [accelX, accelY, accelZ]
+    accel = coord.CartesianRepresentation((delta_vel*mean_vel.norm()/delta_pos.norm()).get_d_xyz().to(u.km/u.s**2))
+    return accel
     
 def trueAccel(orbit):
-    accelX = []
-    accelY = []
-    accelZ = []
-    for position in orbit:
-        accelX.append((mw.acceleration(position)[0]).to(u.km/u.s/u.s))
-        accelY.append((mw.acceleration(position)[1]).to(u.km/u.s/u.s))
-        accelZ.append((mw.acceleration(position)[2]).to(u.km/u.s/u.s))
-    return [accelX, accelY, accelZ]
-    
+    accel = mw.acceleration(orbit).to(u.km/u.s**2)
+    return accel
+
 def fiducialIntegrate(centre, star0, star1, T):
     wCentre = gd.PhaseSpacePosition(pos = centre.get_Pos(),vel = centre.get_Vel())
     w0 = gd.PhaseSpacePosition(pos = star0.get_Pos(),vel = star0.get_Vel())
@@ -154,7 +133,7 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     axVelZ.tick_params('x',labelbottom = False)
     
     axAccelX = plt.subplot(4,3,10,sharex = axX)
-    axAccelX.plot(orbit0.t[0:xMax],aEst[0][0:xMax],color = 'r',label = "Estimated Acceleration")
+    axAccelX.plot(orbit0.t[0:xMax],aEst[0:xMax].x,color = 'r',label = "Estimated Acceleration")
     axAccelX.plot(orbit0.t[0:xMax],aTrue[0][0:xMax],color = 'g',label = "True Acceleration")
     axAccelX.set_xlabel('Time (Myr)')
     axAccelX.set_title(r"$a_x$")
@@ -162,7 +141,7 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     axAccelX.legend()
     
     axAccelY = plt.subplot(4,3,11,sharex = axY, sharey = axAccelX)
-    axAccelY.plot(orbit0.t[0:xMax],aEst[1][0:xMax],color = 'r',label = "Estimated Acceleration")
+    axAccelY.plot(orbit0.t[0:xMax],aEst[0:xMax].y,color = 'r',label = "Estimated Acceleration")
     axAccelY.plot(orbit0.t[0:xMax],aTrue[1][0:xMax],color = 'g',label = "True Acceleration")
     axAccelY.set_xlabel('Time (Myr)')
     axAccelY.set_title(r"$a_y$")
@@ -170,7 +149,7 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     axAccelY.legend()
     
     axAccelZ = plt.subplot(4,3,12,sharex = axZ,sharey = axAccelX)
-    axAccelZ.plot(orbit0.t[0:xMax],aEst[2][0:xMax],color = 'r',label = "Estimated Acceleration")
+    axAccelZ.plot(orbit0.t[0:xMax],aEst[0:xMax].z,color = 'r',label = "Estimated Acceleration")
     axAccelZ.plot(orbit0.t[0:xMax],aTrue[2][0:xMax],color = 'g',label = "True Acceleration")
     axAccelZ.set_xlabel('Time (Myr)')
     axAccelZ.set_title(r"$a_z$")
