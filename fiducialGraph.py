@@ -31,7 +31,7 @@ def accelEstimate(orbit0,orbit1):
     mean_vel = coord.CartesianDifferential(0.5*(orbit1.vel+orbit0.vel).get_d_xyz().to(u.km/u.s))
     delta_pos = orbit1.pos-orbit0.pos
     
-    accel = coord.CartesianRepresentation((delta_vel*mean_vel.norm()/delta_pos.norm()).get_d_xyz().to(u.km/u.s**2))
+    accel = coord.CartesianRepresentation((0.5*delta_vel*mean_vel.norm()/(0.5*delta_pos.norm())).get_d_xyz().to(u.km/u.s**2))
     return accel
     
 def trueAccel(orbit):
