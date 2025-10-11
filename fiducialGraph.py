@@ -33,6 +33,13 @@ def accelEstimate(orbit0,orbit1):
     
     accel = coord.CartesianRepresentation((0.5*delta_vel*mean_vel.norm()/(0.5*delta_pos.norm())).get_d_xyz().to(u.km/u.s**2))
     return accel
+
+def accelDotEstimate(orbit0, orbit1):
+    delta_vel = 0.5*(orbit1.vel-orbit0.vel)
+    mean_vel = coord.CartesianDifferential(0.5*(orbit1.vel+orbit0.vel).get_d_xyz().to(u.km/u.s))
+    delta_pos = 0.5*(orbit1.pos-orbit0.pos)
+    accel = coord.CartesianRepresentation((delta_vel * ((delta_pos.dot(mean_vel))/delta_pos.dot(delta_pos))).get_d_xyz().to(u.km/u.s**2))
+    return accel
     
 def trueAccel(orbit):
     accel = mw.acceleration(orbit).to(u.km/u.s**2)
@@ -58,6 +65,7 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     star1_freefall_x, star1_freefall_y, star1_freefall_z = freeFallDifference(centre, star1, freefallLimit)
     
     aEst = accelEstimate(orbit0, orbit1)
+    aDotEst = accelDotEstimate(orbit0, orbit1)
     aTrue = trueAccel(orbitc)
     
     dirCos = pG.getDirCos(orbit0, orbit1)
@@ -133,7 +141,8 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     axVelZ.tick_params('x',labelbottom = False)
     
     axAccelX = plt.subplot(4,3,10,sharex = axX)
-    axAccelX.plot(orbit0.t[0:xMax],aEst[0:xMax].x,color = 'r',label = "Estimated Acceleration")
+    # axAccelX.plot(orbit0.t[0:xMax],aEst[0:xMax].x,color = 'r',label = "Estimated Acceleration")
+    axAccelX.plot(orbit0.t[0:xMax],aDotEst[0:xMax].x,color = 'b',label = "Dot Product Estimated Acceleration")
     axAccelX.plot(orbit0.t[0:xMax],aTrue[0][0:xMax],color = 'g',label = "True Acceleration")
     axAccelX.set_xlabel('Time (Myr)')
     axAccelX.set_title(r"$a_x$")
@@ -141,7 +150,8 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     axAccelX.legend()
     
     axAccelY = plt.subplot(4,3,11,sharex = axY, sharey = axAccelX)
-    axAccelY.plot(orbit0.t[0:xMax],aEst[0:xMax].y,color = 'r',label = "Estimated Acceleration")
+    # axAccelY.plot(orbit0.t[0:xMax],aEst[0:xMax].y,color = 'r',label = "Estimated Acceleration")
+    axAccelY.plot(orbit0.t[0:xMax],aDotEst[0:xMax].y,color = 'b',label = "Dot Product Estimated Acceleration")
     axAccelY.plot(orbit0.t[0:xMax],aTrue[1][0:xMax],color = 'g',label = "True Acceleration")
     axAccelY.set_xlabel('Time (Myr)')
     axAccelY.set_title(r"$a_y$")
@@ -149,7 +159,8 @@ def fiducialGraph(ID, T, centre, star0, star1, saveGraphs, dirTime, limitTime):
     axAccelY.legend()
     
     axAccelZ = plt.subplot(4,3,12,sharex = axZ,sharey = axAccelX)
-    axAccelZ.plot(orbit0.t[0:xMax],aEst[0:xMax].z,color = 'r',label = "Estimated Acceleration")
+    # axAccelZ.plot(orbit0.t[0:xMax],aEst[0:xMax].z,color = 'r',label = "Estimated Acceleration")
+    axAccelZ.plot(orbit0.t[0:xMax],aDotEst[0:xMax].z,color = 'b',label = "Dot Product Estimated Acceleration")
     axAccelZ.plot(orbit0.t[0:xMax],aTrue[2][0:xMax],color = 'g',label = "True Acceleration")
     axAccelZ.set_xlabel('Time (Myr)')
     axAccelZ.set_title(r"$a_z$")

@@ -14,6 +14,7 @@ import fiducialGraph as fG
 
 # notes the start time of running the program to determine how long it ran for
 startTime = time.time()
+print("Program Started...")
 
 # toggle for whether graphs are saved automatically to computer
 saveGraphs = False
@@ -52,4 +53,4 @@ for (j, starPair) in enumerate(starPairs):
 
 # outputs the time it took the program to run
 endTime = time.time()
-print("This took " + str(endTime-startTime) + " seconds")
+print("Program Finished. This took " + str(endTime-startTime) + " seconds")
